@@ -13,3 +13,4 @@ replay_pid*
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+infra/terraform/Cloud_Native/
