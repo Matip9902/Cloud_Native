@@ -69,14 +69,6 @@ resource "aws_security_group" "entry" {
   }
 
   ingress {
-    description     = "Eureka from services EC2"
-    from_port       = 8761
-    to_port         = 8761
-    protocol        = "tcp"
-    security_groups = [aws_security_group.services.id]
-  }
-
-  ingress {
     description = "Eureka for evidence"
     from_port   = 8761
     to_port     = 8761
@@ -111,38 +103,6 @@ resource "aws_security_group" "services" {
     cidr_blocks = [var.operator_ip_cidr]
   }
 
-  ingress {
-    description     = "Inventory from entry EC2"
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.entry.id]
-  }
-
-  ingress {
-    description     = "Customers from entry EC2"
-    from_port       = 8081
-    to_port         = 8081
-    protocol        = "tcp"
-    security_groups = [aws_security_group.entry.id]
-  }
-
-  ingress {
-    description     = "Suppliers from entry EC2"
-    from_port       = 8082
-    to_port         = 8082
-    protocol        = "tcp"
-    security_groups = [aws_security_group.entry.id]
-  }
-
-  ingress {
-    description     = "Notifications from entry EC2"
-    from_port       = 8083
-    to_port         = 8083
-    protocol        = "tcp"
-    security_groups = [aws_security_group.entry.id]
-  }
-
   egress {
     description = "All outbound"
     from_port   = 0
@@ -155,6 +115,33 @@ resource "aws_security_group" "services" {
     Name    = "${var.project_name}-services-sg"
     Project = var.project_name
   }
+}
+
+resource "aws_security_group_rule" "eureka_from_services" {
+  type                     = "ingress"
+  description              = "Eureka from services EC2"
+  from_port                = 8761
+  to_port                  = 8761
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.entry.id
+  source_security_group_id = aws_security_group.services.id
+}
+
+resource "aws_security_group_rule" "microservices_from_entry" {
+  for_each = {
+    inventory     = 8080
+    customers     = 8081
+    suppliers     = 8082
+    notifications = 8083
+  }
+
+  type                     = "ingress"
+  description              = "${each.key} from entry EC2"
+  from_port                = each.value
+  to_port                  = each.value
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.services.id
+  source_security_group_id = aws_security_group.entry.id
 }
 
 resource "aws_instance" "entry" {
