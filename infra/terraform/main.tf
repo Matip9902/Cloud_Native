@@ -24,6 +24,15 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_subnet" "selected" {
+  availability_zone = var.availability_zone
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
@@ -148,7 +157,7 @@ resource "aws_instance" "entry" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.entry_instance_type
   key_name                    = var.key_name
-  subnet_id                   = data.aws_subnets.default.ids[0]
+  subnet_id                   = data.aws_subnet.selected.id
   vpc_security_group_ids      = [aws_security_group.entry.id]
   associate_public_ip_address = true
 
@@ -167,7 +176,7 @@ resource "aws_instance" "services" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.services_instance_type
   key_name                    = var.key_name
-  subnet_id                   = data.aws_subnets.default.ids[0]
+  subnet_id                   = data.aws_subnet.selected.id
   vpc_security_group_ids      = [aws_security_group.services.id]
   associate_public_ip_address = true
 

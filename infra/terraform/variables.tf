@@ -10,6 +10,12 @@ variable "project_name" {
   default     = "cloud-native"
 }
 
+variable "availability_zone" {
+  description = "Availability Zone used for the EC2 instances."
+  type        = string
+  default     = "us-east-1f"
+}
+
 variable "key_name" {
   description = "Existing EC2 key pair name."
   type        = string

@@ -9,3 +9,7 @@ build/
 *.log
 hs_err_pid*
 replay_pid*
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
