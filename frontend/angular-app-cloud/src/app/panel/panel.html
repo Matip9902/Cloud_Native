@@ -1,0 +1,194 @@
+<main class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">CN</span>
+      <div>
+        <strong>Cloud Native</strong>
+        <small>Angular + Spring Boot</small>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button type="button" [class.active]="activeSection === 'products'" (click)="selectSection('products')">
+        Productos
+      </button>
+      <button type="button" [class.active]="activeSection === 'customers'" (click)="selectSection('customers')">
+        Clientes
+      </button>
+      <button type="button" [class.active]="activeSection === 'suppliers'" (click)="selectSection('suppliers')">
+        Proveedores
+      </button>
+      <button type="button" [class.active]="activeSection === 'notifications'" (click)="selectSection('notifications')">
+        Notificaciones
+      </button>
+    </nav>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div>
+        <h1>Panel operativo</h1>
+        <p>Frontend Angular preparado para Azure AD y microservicios AWS.</p>
+      </div>
+
+      <div class="session">
+        <span *ngIf="account">{{ account.name || account.username }}</span>
+        <button type="button" class="secondary" (click)="logout()">Cerrar sesion</button>
+      </div>
+    </header>
+
+    <section class="security-summary">
+      <div>
+        <strong>Seguridad</strong>
+        <span>Token validado con Microsoft Entra ID</span>
+      </div>
+      <div>
+        <small>Tenant</small>
+        <span>{{ tokenClaims.tenant }}</span>
+      </div>
+      <div>
+        <small>Scopes</small>
+        <span>{{ tokenClaims.scopes }}</span>
+      </div>
+      <div>
+        <small>Roles</small>
+        <span>{{ tokenClaims.roles }}</span>
+      </div>
+    </section>
+
+    <div class="notice muted" *ngIf="message">{{ message }}</div>
+
+    <section class="content">
+      <div class="panel" *ngIf="activeSection === 'products'">
+        <div class="panel-header">
+          <h2>Productos</h2>
+          <button type="button" class="secondary" (click)="loadData()">Actualizar</button>
+        </div>
+
+        <form class="form-grid" (ngSubmit)="saveProduct()">
+          <label>
+            Nombre
+            <input name="name" [(ngModel)]="productForm.name" required />
+          </label>
+          <label>
+            Categoria
+            <input name="category" [(ngModel)]="productForm.category" required />
+          </label>
+          <label>
+            Precio
+            <input name="price" type="number" min="1" [(ngModel)]="productForm.price" required />
+          </label>
+          <label>
+            Stock
+            <input name="stock" type="number" min="0" [(ngModel)]="productForm.stock" required />
+          </label>
+          <label class="check">
+            <input name="active" type="checkbox" [(ngModel)]="productForm.active" />
+            Activo
+          </label>
+          <div class="actions">
+            <button type="submit">{{ productForm.id ? 'Actualizar' : 'Crear' }}</button>
+            <button type="button" class="secondary" (click)="resetProductForm()">Limpiar</button>
+          </div>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Categoria</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td>{{ product.name }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.price | currency: 'CLP':'symbol-narrow':'1.0-0' }}</td>
+              <td>{{ product.stock }}</td>
+              <td>{{ product.active ? 'Activo' : 'Inactivo' }}</td>
+              <td class="row-actions">
+                <button type="button" class="secondary" (click)="editProduct(product)">Editar</button>
+                <button type="button" class="danger" (click)="deleteProduct(product)">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel" *ngIf="activeSection === 'customers'">
+        <div class="panel-header">
+          <h2>Clientes</h2>
+          <button type="button" class="secondary" (click)="loadData()">Actualizar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Telefono</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let customer of customers">
+              <td>{{ customer.fullName }}</td>
+              <td>{{ customer.email }}</td>
+              <td>{{ customer.phone || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel" *ngIf="activeSection === 'suppliers'">
+        <div class="panel-header">
+          <h2>Proveedores</h2>
+          <button type="button" class="secondary" (click)="loadData()">Actualizar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th>Email contacto</th>
+              <th>Telefono</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let supplier of suppliers">
+              <td>{{ supplier.companyName }}</td>
+              <td>{{ supplier.contactEmail }}</td>
+              <td>{{ supplier.phone || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel" *ngIf="activeSection === 'notifications'">
+        <div class="panel-header">
+          <h2>Notificaciones</h2>
+          <button type="button" class="secondary" (click)="loadData()">Actualizar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Destinatario</th>
+              <th>Mensaje</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let notification of notifications">
+              <td>{{ notification.recipient }}</td>
+              <td>{{ notification.message }}</td>
+              <td>{{ notification.readStatus ? 'Leida' : 'Pendiente' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="loading" *ngIf="loading">Cargando...</div>
+  </section>
+</main>

@@ -1,0 +1,90 @@
+services:
+  eureka-server:
+    build:
+      context: ./backend/eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+
+  inventory-service:
+    build:
+      context: ./backend/inventory-service
+    container_name: inventory-service
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JWT_ISSUER_URI: https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0
+      JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
+    ports:
+      - "8080:8080"
+
+  customer-service:
+    build:
+      context: ./backend/customer-service
+    container_name: customer-service
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JWT_ISSUER_URI: https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0
+      JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
+    ports:
+      - "8081:8081"
+
+  supplier-service:
+    build:
+      context: ./backend/supplier-service
+    container_name: supplier-service
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JWT_ISSUER_URI: https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0
+      JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
+    ports:
+      - "8082:8082"
+
+  notification-service:
+    build:
+      context: ./backend/notification-service
+    container_name: notification-service
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JWT_ISSUER_URI: https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0
+      JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
+    ports:
+      - "8083:8083"
+
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+    container_name: api-gateway
+    depends_on:
+      - eureka-server
+      - inventory-service
+      - customer-service
+      - supplier-service
+      - notification-service
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+      JWT_ISSUER_URI: https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0
+      JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
+    ports:
+      - "8085:8085"
+
+  frontend:
+    build:
+      context: ./frontend/angular-app-cloud
+    container_name: angular-app-cloud
+    depends_on:
+      - api-gateway
+    ports:
+      - "4200:80"

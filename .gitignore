@@ -1,0 +1,11 @@
+target/
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+*.iml
+.env
+*.log
+hs_err_pid*
+replay_pid*
