@@ -1,0 +1,13 @@
+# Valores para frontend/angular-app-cloud/src/environments/environment.prod.ts
+
+AZURE_CLIENT_ID=509a3118-7042-47ce-9c36-f7d7f5fda558
+AZURE_TENANT_ID=94b15b07-9bad-4661-8554-aad0e62b18de
+AZURE_AUTHORITY=https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de
+AZURE_REDIRECT_URI=https://REEMPLAZAR_DOMINIO_FRONTEND
+
+# Scopes expuestos por la API en Azure AD
+AZURE_SCOPE_READ=api://0f18b5b0-285b-4050-a959-245884ab7670/inventory.read
+AZURE_SCOPE_WRITE=api://0f18b5b0-285b-4050-a959-245884ab7670/inventory.write
+
+# AWS API Gateway
+API_GATEWAY_BASE_URL=https://REEMPLAZAR_API_GATEWAY
