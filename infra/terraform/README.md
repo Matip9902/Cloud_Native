@@ -43,30 +43,27 @@ terraform apply
 ```
 
 Al terminar, Terraform mostrara las IPs publicas y privadas de ambas EC2.
+Tambien mostrara dos comandos listos para crear los archivos `.env`:
+
+```bash
+terraform output -raw entry_env_command
+terraform output -raw services_env_command
+```
+
+Cada comando ya viene con las IPs reales creadas por Terraform.
 
 ## Uso con Docker Compose
 
 En la EC2 de entrada:
 
 ```bash
+terraform output -raw entry_env_command
 docker compose -f docker-compose.entry.yml up --build -d
 ```
 
 En la EC2 de servicios:
 
 ```bash
-cp env/services-ec2.env.example .env
-```
-
-Editar `.env`:
-
-```text
-EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://IP_PRIVADA_EC2_ENTRY:8761/eureka/
-SERVICES_EC2_PRIVATE_IP=IP_PRIVADA_EC2_SERVICES
-```
-
-Luego ejecutar:
-
-```bash
+terraform output -raw services_env_command
 docker compose -f docker-compose.services.yml --env-file .env up --build -d
 ```
