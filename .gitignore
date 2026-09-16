@@ -6,6 +6,7 @@ build/
 .vscode/
 *.iml
 .env
+*.pem
 *.log
 hs_err_pid*
 replay_pid*
