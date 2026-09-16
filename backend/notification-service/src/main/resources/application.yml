@@ -8,6 +8,7 @@ spring:
     url: ${NOTIFICATION_DB_URL:jdbc:h2:mem:notificationdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
     username: ${NOTIFICATION_DB_USERNAME:sa}
     password: ${NOTIFICATION_DB_PASSWORD:}
+    driver-class-name: ${NOTIFICATION_DB_DRIVER:org.h2.Driver}
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
