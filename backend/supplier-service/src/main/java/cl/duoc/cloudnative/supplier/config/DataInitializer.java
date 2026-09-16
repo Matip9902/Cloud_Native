@@ -17,14 +17,14 @@ public class DataInitializer {
             }
 
             Supplier hardwareSupplier = new Supplier();
-            hardwareSupplier.setCompanyName("TechParts Chile");
-            hardwareSupplier.setContactEmail("ventas@techparts.example.com");
-            hardwareSupplier.setPhone("+56 2 2555 0101");
+            hardwareSupplier.setCompanyName("TecnoSuministros SpA");
+            hardwareSupplier.setContactEmail("ventas@tecnosuministros.test");
+            hardwareSupplier.setPhone("+56 2 2450 1180");
 
             Supplier logisticsSupplier = new Supplier();
-            logisticsSupplier.setCompanyName("Logistica Andina");
-            logisticsSupplier.setContactEmail("contacto@logisticaandina.example.com");
-            logisticsSupplier.setPhone("+56 2 2666 0202");
+            logisticsSupplier.setCompanyName("Distribuidora Andes Ltda");
+            logisticsSupplier.setContactEmail("contacto@distribuidoraandes.test");
+            logisticsSupplier.setPhone("+56 2 2680 2240");
 
             supplierRepository.save(hardwareSupplier);
             supplierRepository.save(logisticsSupplier);

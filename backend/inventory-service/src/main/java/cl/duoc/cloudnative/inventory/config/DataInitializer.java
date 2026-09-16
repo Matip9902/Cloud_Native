@@ -18,8 +18,8 @@ public class DataInitializer {
                 return;
             }
 
-            productRepository.save(product("Notebook Lenovo ThinkPad", "Computacion", "749990.00", 8));
-            productRepository.save(product("Monitor Samsung 24", "Monitores", "129990.00", 15));
+            productRepository.save(product("Notebook Lenovo ThinkPad E14", "Computacion", "749990.00", 8));
+            productRepository.save(product("Monitor Samsung Essential S3 24", "Monitores", "109990.00", 15));
             productRepository.save(product("Teclado Logitech K120", "Accesorios", "14990.00", 30));
         };
     }

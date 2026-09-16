@@ -18,16 +18,22 @@ public class DataInitializer {
 
             Customer firstCustomer = new Customer();
             firstCustomer.setFullName("Camila Rojas");
-            firstCustomer.setEmail("camila.rojas@example.com");
-            firstCustomer.setPhone("+56 9 1111 2222");
+            firstCustomer.setEmail("camila.rojas@cliente.test");
+            firstCustomer.setPhone("+56 9 6123 4587");
 
             Customer secondCustomer = new Customer();
             secondCustomer.setFullName("Diego Morales");
-            secondCustomer.setEmail("diego.morales@example.com");
-            secondCustomer.setPhone("+56 9 3333 4444");
+            secondCustomer.setEmail("diego.morales@cliente.test");
+            secondCustomer.setPhone("+56 9 7345 2198");
+
+            Customer thirdCustomer = new Customer();
+            thirdCustomer.setFullName("Valentina Soto");
+            thirdCustomer.setEmail("valentina.soto@cliente.test");
+            thirdCustomer.setPhone("+56 9 8456 3071");
 
             customerRepository.save(firstCustomer);
             customerRepository.save(secondCustomer);
+            customerRepository.save(thirdCustomer);
         };
     }
 }

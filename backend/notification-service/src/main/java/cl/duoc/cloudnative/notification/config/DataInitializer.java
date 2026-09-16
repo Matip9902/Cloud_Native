@@ -18,16 +18,22 @@ public class DataInitializer {
 
             Notification stockNotification = new Notification();
             stockNotification.setRecipient("inventario");
-            stockNotification.setMessage("Producto con stock bajo requiere revision.");
+            stockNotification.setMessage("Notebook Lenovo ThinkPad E14 con stock bajo: 8 unidades.");
             stockNotification.setReadStatus(false);
 
             Notification orderNotification = new Notification();
             orderNotification.setRecipient("operaciones");
-            orderNotification.setMessage("Nueva actualizacion disponible para catalogo de proveedores.");
+            orderNotification.setMessage("Catalogo de proveedores actualizado correctamente.");
             orderNotification.setReadStatus(true);
+
+            Notification priceNotification = new Notification();
+            priceNotification.setRecipient("ventas");
+            priceNotification.setMessage("Precio del monitor Samsung actualizado para la campana mensual.");
+            priceNotification.setReadStatus(false);
 
             notificationRepository.save(stockNotification);
             notificationRepository.save(orderNotification);
+            notificationRepository.save(priceNotification);
         };
     }
 }
