@@ -11,6 +11,11 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       JWT_ISSUER_URI: ${JWT_ISSUER_URI:-https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670}
+      DB_URL: ${RDS_JDBC_URL:-jdbc:h2:mem:inventorydb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+      DB_USERNAME: ${RDS_USERNAME:-sa}
+      DB_PASSWORD: ${RDS_PASSWORD:-}
+      DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
     ports:
       - "8080:8080"
 
@@ -26,6 +31,11 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       JWT_ISSUER_URI: ${JWT_ISSUER_URI:-https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670}
+      CUSTOMER_DB_URL: ${RDS_JDBC_URL:-jdbc:h2:mem:customerdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+      CUSTOMER_DB_USERNAME: ${RDS_USERNAME:-sa}
+      CUSTOMER_DB_PASSWORD: ${RDS_PASSWORD:-}
+      CUSTOMER_DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
     ports:
       - "8081:8081"
 
@@ -41,6 +51,11 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       JWT_ISSUER_URI: ${JWT_ISSUER_URI:-https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670}
+      SUPPLIER_DB_URL: ${RDS_JDBC_URL:-jdbc:h2:mem:supplierdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+      SUPPLIER_DB_USERNAME: ${RDS_USERNAME:-sa}
+      SUPPLIER_DB_PASSWORD: ${RDS_PASSWORD:-}
+      SUPPLIER_DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
     ports:
       - "8082:8082"
 
@@ -56,5 +71,10 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
       JWT_ISSUER_URI: ${JWT_ISSUER_URI:-https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670}
+      NOTIFICATION_DB_URL: ${RDS_JDBC_URL:-jdbc:h2:mem:notificationdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+      NOTIFICATION_DB_USERNAME: ${RDS_USERNAME:-sa}
+      NOTIFICATION_DB_PASSWORD: ${RDS_PASSWORD:-}
+      NOTIFICATION_DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
     ports:
       - "8083:8083"

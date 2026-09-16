@@ -166,23 +166,26 @@ DELETE /api/v1/products/{id}
 
 ## Configuracion de base de datos
 
-La base queda configurada de inmediato. Para desarrollo local se usa H2 automaticamente. Para una base cloud PostgreSQL, define estas variables antes de ejecutar el microservicio principal:
+La base queda configurada de inmediato. Para desarrollo local se usa H2 automaticamente. Para AWS RDS PostgreSQL, la configuracion recomendada es una base compartida `cloud_native` y variables comunes en la EC2 de servicios:
 
 ```powershell
-$env:DB_URL="jdbc:postgresql://HOST:5432/DB_NAME"
-$env:DB_USERNAME="USUARIO"
-$env:DB_PASSWORD="PASSWORD"
-$env:DB_DRIVER="org.postgresql.Driver"
+$env:RDS_JDBC_URL="jdbc:postgresql://ENDPOINT_RDS:5432/cloud_native"
+$env:RDS_USERNAME="USUARIO"
+$env:RDS_PASSWORD="PASSWORD"
+$env:RDS_DRIVER="org.postgresql.Driver"
 $env:JPA_DDL_AUTO="update"
 ```
 
-Los microservicios simples tienen variables propias si quieres conectarlos a bases separadas:
+`docker-compose.services.yml` propaga esas variables a inventario, clientes, proveedores y notificaciones. Si se necesitan bases separadas, cada microservicio mantiene variables propias:
 
 ```text
+DB_URL, DB_USERNAME, DB_PASSWORD, DB_DRIVER
 CUSTOMER_DB_URL, CUSTOMER_DB_USERNAME, CUSTOMER_DB_PASSWORD
 SUPPLIER_DB_URL, SUPPLIER_DB_USERNAME, SUPPLIER_DB_PASSWORD
 NOTIFICATION_DB_URL, NOTIFICATION_DB_USERNAME, NOTIFICATION_DB_PASSWORD
 ```
+
+Para RDS en AWS, usar PostgreSQL Single-AZ `db.t3.micro` o `db.t4g.micro` si esta disponible en capa gratuita/creditos, sin acceso publico, y permitir el puerto `5432` solo desde el security group de la EC2 de servicios.
 
 ## Variables listas para Azure y AWS
 
