@@ -41,20 +41,20 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('SCOPE_inventory.write') or hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("@jwtPermissionEvaluator.canWrite(authentication)")
     public ProductResponse create(@Valid @RequestBody ProductRequest request) {
         return productService.create(request);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_inventory.write') or hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("@jwtPermissionEvaluator.canWrite(authentication)")
     public ProductResponse update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('SCOPE_inventory.write') or hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("@jwtPermissionEvaluator.canWrite(authentication)")
     public void delete(@PathVariable Long id) {
         productService.delete(id);
     }
