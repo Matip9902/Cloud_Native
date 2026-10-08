@@ -1,6 +1,7 @@
 package cl.duoc.cloudnative.rabbitadmin.controller;
 
 import cl.duoc.cloudnative.rabbitadmin.service.QueueNotFoundException;
+import cl.duoc.cloudnative.rabbitadmin.service.RabbitResourceNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,11 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(QueueNotFoundException.class)
     ResponseEntity<Map<String, String>> queueNotFound(QueueNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", exception.getMessage()));
+    }
+
+    @ExceptionHandler(RabbitResourceNotFoundException.class)
+    ResponseEntity<Map<String, String>> resourceNotFound(RabbitResourceNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", exception.getMessage()));
     }
 }
