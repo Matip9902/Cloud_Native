@@ -2,6 +2,8 @@ package cl.duoc.cloudnative.inventory.service;
 
 import cl.duoc.cloudnative.inventory.dto.ProductRequest;
 import cl.duoc.cloudnative.inventory.dto.ProductResponse;
+import cl.duoc.cloudnative.inventory.messaging.ProductEvent;
+import cl.duoc.cloudnative.inventory.messaging.ProductEventPublisher;
 import cl.duoc.cloudnative.inventory.model.Product;
 import cl.duoc.cloudnative.inventory.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,9 +16,11 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductEventPublisher productEventPublisher;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductEventPublisher productEventPublisher) {
         this.productRepository = productRepository;
+        this.productEventPublisher = productEventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -36,7 +40,13 @@ public class ProductService {
     public ProductResponse create(ProductRequest request) {
         Product product = new Product();
         applyRequest(product, request);
-        return toResponse(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+        productEventPublisher.publish(ProductEvent.of(
+                "PRODUCT_CREATED",
+                savedProduct.getId(),
+                savedProduct.getName()
+        ));
+        return toResponse(savedProduct);
     }
 
     @Transactional
@@ -44,15 +54,24 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado: " + id));
         applyRequest(product, request);
+        productEventPublisher.publish(ProductEvent.of(
+                "PRODUCT_UPDATED",
+                product.getId(),
+                product.getName()
+        ));
         return toResponse(product);
     }
 
     @Transactional
     public void delete(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new EntityNotFoundException("Producto no encontrado: " + id);
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado: " + id));
+        productRepository.delete(product);
+        productEventPublisher.publish(ProductEvent.of(
+                "PRODUCT_DELETED",
+                product.getId(),
+                product.getName()
+        ));
     }
 
     private void applyRequest(Product product, ProductRequest request) {

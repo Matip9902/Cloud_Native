@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: notification-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:cloudnative}
+    password: ${RABBITMQ_PASSWORD:cloudnative123}
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
   datasource:
     url: ${NOTIFICATION_DB_URL:jdbc:h2:mem:notificationdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
     username: ${NOTIFICATION_DB_USERNAME:sa}
@@ -20,6 +29,13 @@ spring:
           issuer-uri: ${JWT_ISSUER_URI:https://login.microsoftonline.com/94b15b07-9bad-4661-8554-aad0e62b18de/v2.0}
 
 app:
+  messaging:
+    product-events-exchange: ${PRODUCT_EVENTS_EXCHANGE:product.events.exchange}
+    product-events-queue: ${PRODUCT_EVENTS_QUEUE:product.events.queue}
+    product-events-binding-key: ${PRODUCT_EVENTS_BINDING_KEY:product.#}
+    product-events-dlx: ${PRODUCT_EVENTS_DLX:product.events.dlx}
+    product-events-dlq: ${PRODUCT_EVENTS_DLQ:product.events.dlq}
+    product-events-dead-routing-key: ${PRODUCT_EVENTS_DEAD_ROUTING_KEY:product.events.dead}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   security:
