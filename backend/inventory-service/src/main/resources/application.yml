@@ -5,6 +5,7 @@ spring:
   application:
     name: inventory-service
   rabbitmq:
+    addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:cloudnative}

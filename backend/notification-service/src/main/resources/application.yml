@@ -5,6 +5,7 @@ spring:
   application:
     name: notification-service
   rabbitmq:
+    addresses: ${RABBITMQ_ADDRESSES:localhost:5672}
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:cloudnative}
@@ -36,6 +37,16 @@ app:
     product-events-dlx: ${PRODUCT_EVENTS_DLX:product.events.dlx}
     product-events-dlq: ${PRODUCT_EVENTS_DLQ:product.events.dlq}
     product-events-dead-routing-key: ${PRODUCT_EVENTS_DEAD_ROUTING_KEY:product.events.dead}
+    product-audit-queue: ${PRODUCT_AUDIT_QUEUE:product.audit.queue}
+    product-audit-binding-key: ${PRODUCT_AUDIT_BINDING_KEY:product.#}
+    product-audit-dlx: ${PRODUCT_AUDIT_DLX:product.audit.dlx}
+    product-audit-dlq: ${PRODUCT_AUDIT_DLQ:product.audit.dlq}
+    product-audit-dead-routing-key: ${PRODUCT_AUDIT_DEAD_ROUTING_KEY:product.audit.dead}
+    product-metrics-queue: ${PRODUCT_METRICS_QUEUE:product.metrics.queue}
+    product-metrics-binding-key: ${PRODUCT_METRICS_BINDING_KEY:product.#}
+    product-metrics-dlx: ${PRODUCT_METRICS_DLX:product.metrics.dlx}
+    product-metrics-dlq: ${PRODUCT_METRICS_DLQ:product.metrics.dlq}
+    product-metrics-dead-routing-key: ${PRODUCT_METRICS_DEAD_ROUTING_KEY:product.metrics.dead}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
   security:

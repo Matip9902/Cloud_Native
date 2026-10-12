@@ -28,6 +28,7 @@ Usuario
 - JPA e Hibernate para el acceso a datos.
 - PostgreSQL en Amazon RDS.
 - Docker para ejecutar los componentes.
+- RabbitMQ para eventos asincronos, auditoria y metricas.
 - AWS EC2 y API Gateway para el despliegue.
 - Microsoft Entra ID para autenticación y autorización.
 
@@ -39,8 +40,11 @@ Usuario
 | Customer Service | 8081 | `/api/v1/customers` |
 | Supplier Service | 8082 | `/api/v1/suppliers` |
 | Notification Service | 8083 | `/api/v1/notifications` |
+| Rabbit Admin Service | 8084 | `/queues`, `/exchanges`, `/bindings` |
 | Spring Cloud Gateway | 8085 | `/api/v1/**` |
 | Eureka Server | 8761 | `/` |
+| RabbitMQ nodo 1 | 5672 / 15672 | AMQP / Dashboard |
+| RabbitMQ nodo 2 | 5673 / 15673 | AMQP / Dashboard |
 | Frontend Angular | 4200 | `/` |
 
 ## Estructura del proyecto
@@ -67,6 +71,36 @@ Luego se puede abrir:
 - Frontend: `http://localhost:4200`
 - Gateway: `http://localhost:8085`
 - Eureka: `http://localhost:8761`
+- RabbitMQ nodo 1: `http://localhost:15672`
+- RabbitMQ nodo 2: `http://localhost:15673`
+
+Las credenciales locales predeterminadas de RabbitMQ son `cloudnative` y
+`cloudnative123`. Solo se usan para desarrollo local.
+
+## Mensajeria RabbitMQ
+
+Inventory Service publica eventos `PRODUCT_CREATED`, `PRODUCT_UPDATED` y
+`PRODUCT_DELETED` en `product.events.exchange`. El exchange distribuye cada
+evento a tres colas independientes:
+
+```text
+product.events.queue   -> crea notificaciones
+product.audit.queue    -> registra auditoria
+product.metrics.queue  -> registra metricas
+```
+
+Cada cola principal tiene su propia DLX y DLQ. Los consumidores confirman los
+mensajes validos con ACK. Los mensajes no soportados se rechazan con NACK sin
+requeue y terminan en la DLQ correspondiente.
+
+Los dos nodos RabbitMQ forman un cluster local. Para comprobarlo:
+
+```powershell
+docker exec rabbitmq-1 rabbitmqctl cluster_status
+```
+
+Rabbit Admin Service permite crear y eliminar recursos mediante los endpoints
+`/queues`, `/exchanges` y `/bindings`.
 
 Para detener los contenedores:
 
@@ -139,3 +173,7 @@ mvn.cmd test
 En la carpeta `docs/` se encuentran las evidencias y explicaciones sobre las rutas, JWT, Microsoft Entra ID y el despliegue en AWS.
 
 Los archivos `.env`, contraseñas, llaves privadas, carpetas `target`, `node_modules` y archivos generados no deben subirse al repositorio.
+
+Para EC2, `RABBITMQ_ADDRESSES` debe contener las IP privadas o DNS internos de
+los nodos. La contraseña y la cookie de Erlang deben configurarse como secretos
+del entorno y nunca guardarse en GitHub.

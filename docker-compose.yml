@@ -1,15 +1,50 @@
 services:
   rabbitmq:
     image: rabbitmq:4.2-management
-    container_name: rabbitmq
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cloudnative-local-cluster-cookie}
+      RABBITMQ_NODENAME: rabbit@rabbitmq-1
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_node1_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq-2:
+    image: rabbitmq:4.2-management
+    container_name: rabbitmq-2
+    hostname: rabbitmq-2
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cloudnative-local-cluster-cookie}
+      RABBITMQ_NODENAME: rabbit@rabbitmq-2
+    post_start:
+      - command: >-
+          bash -c "sleep 8 &&
+          rabbitmqctl await_startup &&
+          rabbitmqctl stop_app &&
+          rabbitmqctl reset &&
+          rabbitmqctl join_cluster rabbit@rabbitmq-1 &&
+          rabbitmqctl start_app"
+        user: rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_node2_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -32,6 +67,8 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
       CORS_ALLOWED_ORIGINS: http://localhost:4200
@@ -39,6 +76,7 @@ services:
       JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
     ports:
@@ -81,6 +119,8 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
       CORS_ALLOWED_ORIGINS: http://localhost:4200
@@ -88,6 +128,7 @@ services:
       JWT_AUDIENCES: api://0f18b5b0-285b-4050-a959-245884ab7670,0f18b5b0-285b-4050-a959-245884ab7670
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
     ports:
@@ -102,10 +143,13 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
     ports:
@@ -139,4 +183,5 @@ services:
       - "4200:80"
 
 volumes:
-  rabbitmq_data:
+  rabbitmq_node1_data:
+  rabbitmq_node2_data:
