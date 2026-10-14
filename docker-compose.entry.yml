@@ -28,4 +28,5 @@ services:
       - api-gateway
     ports:
       - "80:80"
+      - "443:443"
       - "4200:80"
