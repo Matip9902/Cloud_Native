@@ -27,4 +27,5 @@ services:
     depends_on:
       - api-gateway
     ports:
+      - "80:80"
       - "4200:80"
