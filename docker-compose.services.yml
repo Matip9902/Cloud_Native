@@ -1,4 +1,36 @@
 services:
+  rabbitmq:
+    image: rabbitmq:4.2-management
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cloudnative-cluster-cookie}
+      RABBITMQ_NODENAME: rabbit@rabbitmq-1
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_node1_data:/var/lib/rabbitmq
+
+  rabbitmq-2:
+    image: rabbitmq:4.2-management
+    container_name: rabbitmq-2
+    hostname: rabbitmq-2
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cloudnative-cluster-cookie}
+      RABBITMQ_NODENAME: rabbit@rabbitmq-2
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_node2_data:/var/lib/rabbitmq
+
   inventory-service:
     build:
       context: ./backend/inventory-service
@@ -16,6 +48,9 @@ services:
       DB_PASSWORD: ${RDS_PASSWORD:-}
       DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
       JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
     ports:
       - "8080:8080"
 
@@ -76,5 +111,24 @@ services:
       NOTIFICATION_DB_PASSWORD: ${RDS_PASSWORD:-}
       NOTIFICATION_DB_DRIVER: ${RDS_DRIVER:-org.h2.Driver}
       JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
     ports:
       - "8083:8083"
+
+  rabbit-admin-service:
+    build:
+      context: ./backend/rabbit-admin-service
+    container_name: rabbit-admin-service
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
+      RABBITMQ_ADDRESSES: rabbitmq:5672,rabbitmq-2:5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-cloudnative}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cloudnative123}
+    ports:
+      - "8084:8084"
+
+volumes:
+  rabbitmq_node1_data:
+  rabbitmq_node2_data:
