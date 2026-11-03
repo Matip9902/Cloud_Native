@@ -177,3 +177,13 @@ Los archivos `.env`, contraseñas, llaves privadas, carpetas `target`, `node_mod
 Para EC2, `RABBITMQ_ADDRESSES` debe contener las IP privadas o DNS internos de
 los nodos. La contraseña y la cookie de Erlang deben configurarse como secretos
 del entorno y nunca guardarse en GitHub.
+
+## Kafka: eventos y estadísticas
+
+Kafka complementa RabbitMQ con dos tópicos (`product.events` y `product.metrics`), un servicio de analítica, un administrador de tópicos y una vista **Estadísticas Kafka** en Angular.
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d
+```
+
+Incluye ZooKeeper, tres brokers y Kafka UI (puerto 8090). Instrucciones, endpoints, configuración y pruebas manuales: [docs/KAFKA.md](docs/KAFKA.md).

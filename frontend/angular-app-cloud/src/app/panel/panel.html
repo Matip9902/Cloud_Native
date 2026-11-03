@@ -21,6 +21,9 @@
       <button type="button" [class.active]="activeSection === 'notifications'" (click)="selectSection('notifications')">
         Notificaciones
       </button>
+      <button type="button" [class.active]="activeSection === 'metrics'" (click)="selectSection('metrics')">
+        Estadísticas Kafka
+      </button>
     </nav>
   </aside>
 
@@ -59,6 +62,23 @@
     <div class="notice muted" *ngIf="message">{{ message }}</div>
 
     <section class="content">
+      <div class="panel" *ngIf="activeSection === 'metrics'">
+        <div class="panel-header">
+          <h2>Estadísticas de productos</h2>
+          <button type="button" class="secondary" [disabled]="loading" (click)="loadData()">Actualizar</button>
+        </div>
+        <p>Operaciones procesadas: {{ metrics.total }}</p>
+        <p *ngIf="loading">Cargando estadísticas…</p>
+        <table>
+          <thead><tr><th>Operación</th><th>Cantidad</th></tr></thead>
+          <tbody>
+            <tr><td>Productos creados</td><td>{{ metrics.operations['PRODUCT_CREATED'] || 0 }}</td></tr>
+            <tr><td>Productos actualizados</td><td>{{ metrics.operations['PRODUCT_UPDATED'] || 0 }}</td></tr>
+            <tr><td>Productos eliminados</td><td>{{ metrics.operations['PRODUCT_DELETED'] || 0 }}</td></tr>
+          </tbody>
+        </table>
+        <p>Las estadísticas se actualizan de forma asíncrona desde Kafka. Usa Actualizar para consultar nuevos eventos.</p>
+      </div>
       <div class="panel" *ngIf="activeSection === 'products'">
         <div class="panel-header">
           <h2>Productos</h2>

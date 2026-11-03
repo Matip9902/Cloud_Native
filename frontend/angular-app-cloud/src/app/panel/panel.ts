@@ -20,6 +20,7 @@ export class Panel implements OnInit {
     scopes: 'sin scopes',
     roles: 'sin roles configurados',
   };
+  metrics = { total: 0, operations: {} as Record<string, number> };
   activeSection = 'products';
   loading = false;
   message = '';
@@ -70,6 +71,13 @@ export class Panel implements OnInit {
       return;
     }
 
+    if (this.activeSection === 'metrics') {
+      this.loading = true;
+      this.apiService.getMetrics().subscribe({
+        next: (metrics) => { this.metrics = metrics; this.loading = false; },
+        error: (error) => this.handleLoadError('métricas', error),
+      });
+    }
     if (this.activeSection === 'products') {
       this.loadProducts();
     }

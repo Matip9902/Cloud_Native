@@ -12,6 +12,12 @@ export class ApiService {
     private readonly msalService: MsalService,
   ) {}
 
+  getMetrics(): Observable<{ total: number; operations: Record<string, number> }> {
+    return this.withAuthHeaders((headers) =>
+      this.http.get<{ total: number; operations: Record<string, number> }>('/api/v1/metrics', { headers }),
+    );
+  }
+
   getProducts(): Observable<Product[]> {
     return this.withAuthHeaders((headers) =>
       this.http.get<Product[]>(environment.api.inventory, { headers }),

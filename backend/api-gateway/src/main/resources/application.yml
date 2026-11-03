@@ -14,6 +14,14 @@ spring:
       server:
         webflux:
           routes:
+            - id: analytics-service
+              uri: lb://ANALYTICS-SERVICE
+              predicates:
+                - Path=/api/v1/metrics,/api/v1/metrics/**
+            - id: kafka-admin-service
+              uri: lb://KAFKA-ADMIN-SERVICE
+              predicates:
+                - Path=/api/v1/kafka,/api/v1/kafka/**
             - id: inventory-service
               uri: lb://INVENTORY-SERVICE
               predicates:
