@@ -8,10 +8,17 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 5"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
   kafka-1:
     image: confluentinc/cp-kafka:7.7.1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "127.0.0.1:19092:19092"
     environment:
@@ -41,7 +48,8 @@ services:
   kafka-2:
     image: confluentinc/cp-kafka:7.7.1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "127.0.0.1:29092:29092"
     environment:
@@ -71,7 +79,8 @@ services:
   kafka-3:
     image: confluentinc/cp-kafka:7.7.1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "127.0.0.1:39092:39092"
     environment:

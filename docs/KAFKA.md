@@ -100,3 +100,15 @@ Variables configurables: `KAFKA_BOOTSTRAP_SERVERS`, `KAFKA_PRODUCT_TOPIC`, `KAFK
 Esta incorporación mantiene la integración RabbitMQ existente. No migra las notificaciones a Kafka. La publicación a Kafka ocurre después del commit de la base de datos, y sus fallos quedan en logs: **no hay outbox transaccional ni recuperación automática de publicaciones perdidas**. Una caída entre commit y publicación puede perder el evento Kafka. RabbitMQ conserva su comportamiento transaccional previo. Los conteos no representan el stock actual, sino operaciones procesadas desde la instalación/reconstrucción de la proyección. No se declara entrega exactamente una vez entre base de datos, RabbitMQ y Kafka.
 
 La compilación y la validación estática Compose se revisan por separado; las pruebas funcionales, de autenticación y de tolerancia a fallos deben ejecutarse con la infraestructura levantada.
+
+## Si un broker termina esperando a ZooKeeper
+
+Si aparece `Timed out waiting for connection to Zookeeper server`, actualizar el repositorio: los brokers ahora esperan un healthcheck de sesión ZooKeeper (`cub zk-ready`), no solo el inicio de su contenedor. Recrear la instalación sin borrar volúmenes:
+
+```sh
+git pull origin main
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml down
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d
+```
+
+No utilizar `down -v`: no es necesario borrar datos para corregir el orden de arranque. Si ZooKeeper queda `unhealthy`, revisar sus logs; ese estado indica que sigue sin aceptar sesiones y necesita un diagnóstico adicional.
