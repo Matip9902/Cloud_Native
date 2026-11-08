@@ -40,6 +40,7 @@ Usuario
 | Customer Service | 8081 | `/api/v1/customers` |
 | Supplier Service | 8082 | `/api/v1/suppliers` |
 | Notification Service | 8083 | `/api/v1/notifications` |
+| Audit Service | 8088 | `/api/v1/audits` |
 | Rabbit Admin Service | 8084 | `/queues`, `/exchanges`, `/bindings` |
 | Spring Cloud Gateway | 8085 | `/api/v1/**` |
 | Eureka Server | 8761 | `/` |
@@ -81,17 +82,18 @@ Las credenciales locales predeterminadas de RabbitMQ son `cloudnative` y
 
 Inventory Service publica eventos `PRODUCT_CREATED`, `PRODUCT_UPDATED` y
 `PRODUCT_DELETED` en `product.events.exchange`. El exchange distribuye cada
-evento a tres colas independientes:
+evento a dos colas con consumidores en microservicios independientes:
 
 ```text
-product.events.queue   -> crea notificaciones
-product.audit.queue    -> registra auditoria
-product.metrics.queue  -> registra metricas
+product.events.queue -> notification-service -> guarda notificaciones
+product.audit.queue  -> audit-service        -> guarda historial de operaciones
 ```
 
-Cada cola principal tiene su propia DLX y DLQ. Los consumidores confirman los
+Cada cola RabbitMQ principal tiene su propia DLX y DLQ. Los consumidores confirman los
 mensajes validos con ACK. Los mensajes no soportados se rechazan con NACK sin
 requeue y terminan en la DLQ correspondiente.
+
+La analítica y los conteos corresponden a Kafka, mediante `analytics-service`. Auditoría cuenta con base propia y una vista **Auditoría** en Angular. La actualización de instalaciones previas y la separación de responsabilidades se explican en [docs/RABBITMQ.md](docs/RABBITMQ.md).
 
 Los dos nodos RabbitMQ forman un cluster local. Para comprobarlo:
 
@@ -130,6 +132,7 @@ backend/inventory-service
 backend/customer-service
 backend/supplier-service
 backend/notification-service
+backend/audit-service
 backend/api-gateway
 ```
 

@@ -27,3 +27,12 @@ export interface NotificationItem {
   message: string;
   readStatus: boolean;
 }
+
+export interface AuditRecord {
+  eventId: string;
+  eventType: string;
+  productId: number;
+  productName: string;
+  occurredAt: string;
+  receivedAt: string;
+}

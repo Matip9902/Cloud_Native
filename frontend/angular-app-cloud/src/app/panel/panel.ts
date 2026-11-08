@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MsalService } from '@azure/msal-angular';
 import { AccountInfo } from '@azure/msal-browser';
 import { ApiService } from '../core/api.service';
-import { Customer, NotificationItem, Product, Supplier } from '../core/models';
+import { AuditRecord, Customer, NotificationItem, Product, Supplier } from '../core/models';
 
 @Component({
   selector: 'app-panel',
@@ -21,6 +21,7 @@ export class Panel implements OnInit {
     roles: 'sin roles configurados',
   };
   metrics = { total: 0, operations: {} as Record<string, number> };
+  auditEntries: AuditRecord[] = [];
   activeSection = 'products';
   loading = false;
   message = '';
@@ -71,6 +72,13 @@ export class Panel implements OnInit {
       return;
     }
 
+    if (this.activeSection === 'audits') {
+      this.loading = true;
+      this.apiService.getAudits().subscribe({
+        next: (page) => { this.auditEntries = page.content; this.loading = false; },
+        error: (error) => this.handleLoadError('registros de auditoría', error),
+      });
+    }
     if (this.activeSection === 'metrics') {
       this.loading = true;
       this.apiService.getMetrics().subscribe({

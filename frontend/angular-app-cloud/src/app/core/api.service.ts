@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
 import { from, Observable, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Customer, NotificationItem, Product, Supplier } from './models';
+import { AuditRecord, Customer, NotificationItem, Product, Supplier } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -11,6 +11,12 @@ export class ApiService {
     private readonly http: HttpClient,
     private readonly msalService: MsalService,
   ) {}
+
+  getAudits(): Observable<{ content: AuditRecord[] }> {
+    return this.withAuthHeaders((headers) =>
+      this.http.get<{ content: AuditRecord[] }>('/api/v1/audits', { headers }),
+    );
+  }
 
   getMetrics(): Observable<{ total: number; operations: Record<string, number> }> {
     return this.withAuthHeaders((headers) =>

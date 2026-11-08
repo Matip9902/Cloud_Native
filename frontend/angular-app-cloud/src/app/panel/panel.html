@@ -24,6 +24,9 @@
       <button type="button" [class.active]="activeSection === 'metrics'" (click)="selectSection('metrics')">
         Estadísticas Kafka
       </button>
+      <button type="button" [class.active]="activeSection === 'audits'" (click)="selectSection('audits')">
+        Auditoría
+      </button>
     </nav>
   </aside>
 
@@ -62,6 +65,26 @@
     <div class="notice muted" *ngIf="message">{{ message }}</div>
 
     <section class="content">
+      <div class="panel" *ngIf="activeSection === 'audits'">
+        <div class="panel-header">
+          <h2>Historial de operaciones</h2>
+          <button type="button" class="secondary" [disabled]="loading" (click)="loadData()">Actualizar</button>
+        </div>
+        <p>Últimos 20 eventos recibidos por el servicio de auditoría.</p>
+        <p *ngIf="loading">Cargando historial…</p>
+        <table>
+          <thead><tr><th>Fecha</th><th>Operación</th><th>Producto</th><th>ID producto</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let entry of auditEntries">
+              <td>{{ entry.occurredAt | date:'short' }}</td>
+              <td>{{ entry.eventType }}</td>
+              <td>{{ entry.productName }}</td>
+              <td>{{ entry.productId }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!loading && auditEntries.length === 0">Todavía no hay registros de auditoría.</p>
+      </div>
       <div class="panel" *ngIf="activeSection === 'metrics'">
         <div class="panel-header">
           <h2>Estadísticas de productos</h2>

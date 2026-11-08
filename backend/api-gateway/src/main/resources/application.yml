@@ -14,6 +14,10 @@ spring:
       server:
         webflux:
           routes:
+            - id: audit-service
+              uri: lb://AUDIT-SERVICE
+              predicates:
+                - Path=/api/v1/audits,/api/v1/audits/**
             - id: analytics-service
               uri: lb://ANALYTICS-SERVICE
               predicates:

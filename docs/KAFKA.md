@@ -1,6 +1,6 @@
 # Kafka: eventos y estadísticas de productos
 
-Kafka complementa RabbitMQ. RabbitMQ conserva las notificaciones, auditoría, métricas de logs y DLQ existentes. Kafka añade un historial de operaciones y una proyección persistente de conteos consultable desde Angular.
+Kafka complementa RabbitMQ. RabbitMQ entrega notificaciones a `notification-service` y auditoría a `audit-service`, cada uno con su cola y DLQ. La analítica pertenece a Kafka; ya no hay consumidor de métricas RabbitMQ. Kafka añade un historial de operaciones y una proyección persistente de conteos consultable desde Angular.
 
 ## Arranque local
 
@@ -88,7 +88,7 @@ Variables configurables: `KAFKA_BOOTSTRAP_SERVERS`, `KAFKA_PRODUCT_TOPIC`, `KAFK
 
 - Abrir Kafka UI y comprobar tres brokers y los cuatro tópicos, con tres particiones y tres réplicas.
 - Crear, modificar y eliminar productos desde Angular; comprobar eventos en `product.events`, métricas en `product.metrics` y los tres conteos en Estadísticas Kafka.
-- Confirmar que las notificaciones RabbitMQ y sus DLQ siguen funcionando.
+- Confirmar que las notificaciones RabbitMQ, el historial del servicio de auditoría y sus DLQ siguen funcionando.
 - Publicar un evento inválido en `product.events`; comprobar logs, reintentos y llegada a `product.events.DLT`; enviar luego uno válido y confirmar que se procesa.
 - Reenviar un evento con el mismo `eventId`; comprobar que el total no aumenta dos veces.
 - Reiniciar Analytics y comprobar que los conteos permanecen.
