@@ -127,3 +127,11 @@ docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d a
 Después, actualizar las secciones Estadísticas Kafka y Auditoría en Angular. Si persiste el 401, revisar los logs del gateway y de esos servicios para localizar el rechazo; no compartir tokens ni claves privadas en los logs o en capturas.
 
 Pruebas de regresión: cada servicio comprueba con tokens RSA realmente firmados y un JWKS local la aceptación del tenant v1/v2 y el rechazo de emisores de otros tenants, emisor ausente, audiencia incorrecta, token vencido y firma falsa. Estas pruebas no usan credenciales Azure reales ni sustituyen la comprobación del login en el equipo del usuario.
+
+## Pruebas automatizadas Kafka
+
+Los productores, consumidores, DLT y el administrador disponen de 54 nuevos casos automatizados. Las instrucciones, resultados y distinción respecto a las pruebas de integración están en [PRUEBAS_KAFKA.md](PRUEBAS_KAFKA.md).
+
+```sh
+docker compose -f docker-compose.tests.yml run --rm kafka-tests
+```

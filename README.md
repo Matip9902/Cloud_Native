@@ -190,3 +190,13 @@ docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d
 ```
 
 Incluye ZooKeeper, tres brokers y Kafka UI (puerto 8090). Instrucciones, endpoints, configuración y pruebas manuales: [docs/KAFKA.md](docs/KAFKA.md).
+
+## Pruebas automatizadas Kafka
+
+Para ejecutar las suites de Inventory, Analytics y Kafka Admin con Maven en un contenedor independiente:
+
+```sh
+docker compose -f docker-compose.tests.yml run --rm kafka-tests
+```
+
+Casos cubiertos, ejecución con Maven y resultados: [docs/PRUEBAS_KAFKA.md](docs/PRUEBAS_KAFKA.md).
