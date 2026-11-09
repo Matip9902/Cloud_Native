@@ -13,13 +13,21 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_node1_data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/cluster.conf:/etc/rabbitmq/conf.d/20-cluster.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   rabbitmq-2:
     image: rabbitmq:4.2-management
     container_name: rabbitmq-2
     hostname: rabbitmq-2
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_started
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
@@ -30,6 +38,13 @@ services:
       - "15673:15672"
     volumes:
       - rabbitmq_node2_data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/cluster.conf:/etc/rabbitmq/conf.d/20-cluster.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   inventory-service:
     build:
@@ -158,3 +173,4 @@ volumes:
   audit_data:
   rabbitmq_node1_data:
   rabbitmq_node2_data:
+    name: ${RABBITMQ_NODE2_DATA_VOLUME:-${COMPOSE_PROJECT_NAME}_rabbitmq_node2_data}

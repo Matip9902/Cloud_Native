@@ -19,3 +19,7 @@ infra/terraform/Cloud_Native/
 # Local H2 service databases
 **/data/*.mv.db
 **/data/*.trace.db
+
+# RabbitMQ recovery backups may contain broker credentials and messages.
+respaldo-rabbitmq*/
+backup-rabbitmq*/

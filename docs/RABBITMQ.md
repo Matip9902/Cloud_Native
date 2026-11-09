@@ -70,3 +70,7 @@ H2 en archivo es apropiado para una sola instancia local de auditoría. Para var
 Se ejecutaron 6 pruebas de auditoría (persistencia/deduplicación, validación y ACK/NACK) y 2 de regresión de notificaciones; todas pasaron. Angular compiló y ambos Compose pasaron la validación estática.
 
 Una comprobación aislada del backend creó, modificó y eliminó un producto mediante HTTP. Con tres brokers Kafka y una instancia RabbitMQ real, obtuvo 3 registros de auditoría, 3 notificaciones y 3 métricas (una por operación). La autenticación de ese ejecutor de pruebas se simuló fuera del checkout, sin alterar el código de seguridad del proyecto; no demuestra el login Azure, la integración del gateway, la interfaz Angular ni la salud del clúster RabbitMQ del equipo del usuario. Esas verificaciones deben realizarse al actualizar la instalación local.
+
+## Arranque y recuperación del clúster
+
+El hook de reset fue sustituido por descubrimiento nativo. Si una instalación antigua queda bloqueada con un timeout Khepri, seguir [RECUPERACION_RABBITMQ.md](RECUPERACION_RABBITMQ.md), respaldando primero ambos nodos.

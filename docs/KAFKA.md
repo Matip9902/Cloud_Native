@@ -16,7 +16,7 @@ Para detener esta misma instalación sin borrar los datos:
 docker compose -f docker-compose.yml -f docker-compose.kafka.yml down
 ```
 
-Se requiere Docker Compose v2 con soporte para `post_start`, utilizado por el clúster RabbitMQ existente. Reservar aproximadamente 8 GB de RAM para la arquitectura completa. No se necesita desplegar AWS para ejecutar este Compose. El login y las APIs de negocio mantienen la configuración Microsoft Entra ID existente y necesitan acceso a ese tenant.
+Se requiere Docker Compose v2. RabbitMQ utiliza descubrimiento declarativo de nodos sin hooks de reset. Reservar aproximadamente 8 GB de RAM para la arquitectura completa. No se necesita desplegar AWS para ejecutar este Compose. El login y las APIs de negocio mantienen la configuración Microsoft Entra ID existente y necesitan acceso a ese tenant.
 
 | Componente | Puerto host |
 | --- | --- |

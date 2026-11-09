@@ -95,7 +95,7 @@ requeue y terminan en la DLQ correspondiente.
 
 La analítica y los conteos corresponden a Kafka, mediante `analytics-service`. Auditoría cuenta con base propia y una vista **Auditoría** en Angular. La actualización de instalaciones previas y la separación de responsabilidades se explican en [docs/RABBITMQ.md](docs/RABBITMQ.md).
 
-Los dos nodos RabbitMQ forman un cluster local. Para comprobarlo:
+Los dos nodos RabbitMQ forman un clúster local mediante descubrimiento declarativo, sin resets de arranque. La recuperación de instalaciones anteriores está en [docs/RECUPERACION_RABBITMQ.md](docs/RECUPERACION_RABBITMQ.md). Para comprobarlo:
 
 ```powershell
 docker exec rabbitmq-1 rabbitmqctl cluster_status

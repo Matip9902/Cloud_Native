@@ -13,11 +13,13 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_node1_data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/cluster.conf:/etc/rabbitmq/conf.d/20-cluster.conf:ro
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 30s
 
   rabbitmq-2:
     image: rabbitmq:4.2-management
@@ -25,31 +27,24 @@ services:
     hostname: rabbitmq-2
     depends_on:
       rabbitmq:
-        condition: service_healthy
+        condition: service_started
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-cloudnative}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cloudnative123}
       RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cloudnative-local-cluster-cookie}
       RABBITMQ_NODENAME: rabbit@rabbitmq-2
-    post_start:
-      - command: >-
-          bash -c "sleep 8 &&
-          rabbitmqctl await_startup &&
-          rabbitmqctl stop_app &&
-          rabbitmqctl reset &&
-          rabbitmqctl join_cluster rabbit@rabbitmq-1 &&
-          rabbitmqctl start_app"
-        user: rabbitmq
     ports:
       - "5673:5672"
       - "15673:15672"
     volumes:
       - rabbitmq_node2_data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/cluster.conf:/etc/rabbitmq/conf.d/20-cluster.conf:ro
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
+      start_period: 30s
 
   eureka-server:
     build:
@@ -217,3 +212,4 @@ volumes:
   audit_data:
   rabbitmq_node1_data:
   rabbitmq_node2_data:
+    name: ${RABBITMQ_NODE2_DATA_VOLUME:-${COMPOSE_PROJECT_NAME}_rabbitmq_node2_data}
