@@ -130,7 +130,7 @@ Pruebas de regresión: cada servicio comprueba con tokens RSA realmente firmados
 
 ## Pruebas automatizadas Kafka
 
-Los productores, consumidores, DLT y el administrador disponen de 54 nuevos casos automatizados. Las instrucciones, resultados y distinción respecto a las pruebas de integración están en [PRUEBAS_KAFKA.md](PRUEBAS_KAFKA.md).
+Los productores, consumidores, DLT y el administrador disponen de 15 casos automatizados seleccionados. Las instrucciones, resultados y distinción respecto a las pruebas de integración están en [PRUEBAS_KAFKA.md](PRUEBAS_KAFKA.md).
 
 ```sh
 docker compose -f docker-compose.tests.yml run --rm kafka-tests

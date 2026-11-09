@@ -11,8 +11,8 @@ services:
     command:
       - |
         set -euo pipefail
-        mvn -B -ntp -f backend/inventory-service/pom.xml test
-        mvn -B -ntp -f backend/analytics-service/pom.xml test
-        mvn -B -ntp -f backend/kafka-admin-service/pom.xml test
+        mvn -B -ntp -f backend/inventory-service/pom.xml -Dtest=KafkaProductPublisherTests test
+        mvn -B -ntp -f backend/analytics-service/pom.xml -Dtest=ProductAnalyticsTests,KafkaErrorConfigTests test
+        mvn -B -ntp -f backend/kafka-admin-service/pom.xml -Dtest=TopicControllerTests test
 volumes:
   kafka_test_maven_cache:

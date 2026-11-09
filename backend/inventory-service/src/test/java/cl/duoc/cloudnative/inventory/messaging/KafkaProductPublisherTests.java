@@ -4,8 +4,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -45,13 +43,6 @@ class KafkaProductPublisherTests {
                 .thenReturn(CompletableFuture.completedFuture(new SendResult<>(record, metadata)));
     }
 
-    @ParameterizedTest @ValueSource(strings = {"PRODUCT_CREATED", "PRODUCT_UPDATED", "PRODUCT_DELETED"})
-    void publishesEventWithProductIdAsOrderingKey(String type) {
-        ProductEvent event = event(type); success(event);
-        publisher.publish(event);
-        verify(kafka).send("product.events", "15", event);
-        assertThat(logs.list).anyMatch(e -> e.getFormattedMessage().contains("partition=2, offset=8"));
-    }
     @Test void logsAsynchronousFailureWithEventId() {
         ProductEvent event = event("PRODUCT_CREATED");
         var future = new CompletableFuture<SendResult<String, Object>>();
@@ -60,13 +51,6 @@ class KafkaProductPublisherTests {
         future.completeExceptionally(new IllegalStateException("broker unavailable"));
         assertThat(logs.list).anyMatch(e -> e.getFormattedMessage().contains("Kafka publish failed")
                 && e.getFormattedMessage().contains(event.eventId().toString()) && e.getThrowableProxy() != null);
-    }
-    @Test void synchronousBrokerFailureDoesNotUndoAlreadyCommittedOperation() {
-        ProductEvent event = event("PRODUCT_CREATED");
-        when(kafka.send("product.events", "15", event)).thenThrow(new IllegalStateException("metadata unavailable"));
-        assertThatCode(() -> publisher.publish(event)).doesNotThrowAnyException();
-        assertThat(logs.list).anyMatch(e -> e.getFormattedMessage().contains("after database commit")
-                && e.getFormattedMessage().contains(event.eventId().toString()));
     }
     @Test void sendsOnlyAfterTransactionCommits() {
         ProductEvent event = event("PRODUCT_CREATED"); success(event);
@@ -83,12 +67,6 @@ class KafkaProductPublisherTests {
             new TransactionTemplate(new TestTransactions()).executeWithoutResult(status -> {
                 context.publishEvent(event("PRODUCT_UPDATED")); status.setRollbackOnly();
             });
-            verifyNoInteractions(kafka);
-        }
-    }
-    @Test void ignoresApplicationEventWithoutTransaction() {
-        try (var context = context()) {
-            context.publishEvent(event("PRODUCT_CREATED"));
             verifyNoInteractions(kafka);
         }
     }

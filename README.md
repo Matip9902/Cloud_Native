@@ -193,7 +193,7 @@ Incluye ZooKeeper, tres brokers y Kafka UI (puerto 8090). Instrucciones, endpoin
 
 ## Pruebas automatizadas Kafka
 
-Para ejecutar las suites de Inventory, Analytics y Kafka Admin con Maven en un contenedor independiente:
+Para ejecutar los 15 casos Kafka seleccionados de Inventory, Analytics y Kafka Admin con Maven en un contenedor independiente:
 
 ```sh
 docker compose -f docker-compose.tests.yml run --rm kafka-tests

@@ -1,8 +1,8 @@
-# Pruebas unitarias y de componentes Kafka
+# 15 pruebas Kafka
 
-Se añadieron 54 casos de prueba para el flujo Kafka. Se utilizan JUnit 5, Mockito, el serializador JSON real, sincronización transaccional Spring y MockMvc standalone. Las pruebas no requieren brokers, RabbitMQ, una cuenta Azure ni una base cloud, y no crean ni eliminan tópicos reales.
+La suite Kafka se redujo a 15 casos seleccionados. Las pruebas previas de seguridad y negocio permanecen en el repositorio y se ejecutan por separado con `mvn test`; el comando Docker de esta guía ejecuta únicamente los 15 casos Kafka.
 
-## Ejecutar con Docker (sin instalar Java ni Maven)
+## Ejecutar sin instalar Java ni Maven
 
 Desde la raíz del proyecto:
 
@@ -10,21 +10,33 @@ Desde la raíz del proyecto:
 docker compose -f docker-compose.tests.yml run --rm kafka-tests
 ```
 
-La primera ejecución descarga la imagen Maven y sus dependencias; las siguientes reutilizan un volumen de caché. Este Compose es independiente del de la aplicación. No hay que detener los contenedores del proyecto ni borrar sus volúmenes. Los reportes se generan en `backend/<servicio>/target/surefire-reports/`.
+La primera ejecución descarga Maven y dependencias. El contenedor de pruebas es independiente de los servicios del proyecto: no requiere brokers, RabbitMQ ni credenciales Azure. Los reportes quedan en `backend/<servicio>/target/surefire-reports/`.
 
-El runner termina con error si un módulo falla. Para considerar la ejecución correcta, los tres módulos deben mostrar `BUILD SUCCESS`, sin fallos, errores ni casos omitidos. Algunos escenarios de prueba provocan errores controlados y escriben stack traces en los logs: esos mensajes por sí solos no implican una prueba fallida; revisar el resumen `Tests run` y el resultado final.
+Los tres módulos deben terminar con `BUILD SUCCESS`, sin fallos, errores ni casos omitidos. Los escenarios de error generan logs intencionales; el resultado de las pruebas se determina por el resumen Maven, no por la sola aparición de un stack trace.
+
+## Casos seleccionados
+
+| N.º | Componente | Caso |
+| --- | --- | --- |
+| 1 | Productor | Publica el evento con la clave de producto únicamente después del commit. |
+| 2 | Productor | No publica cambios de una transacción revertida. |
+| 3 | Productor | Registra el fallo asíncrono del envío con el identificador del evento. |
+| 4 | Analytics | Transforma un evento válido en una métrica tipada y conserva sus datos. |
+| 5 | Analytics | Propaga el fallo del broker para permitir reintentos. |
+| 6 | Analytics | Rechaza un tipo de evento desconocido sin producir una métrica. |
+| 7 | Analytics | Guarda la métrica una sola vez ante una entrega duplicada. |
+| 8 | Errores Kafka | Reintenta dos veces y envía el registro a la misma partición de la DLT con clave, payload y cabeceras de origen. |
+| 9 | Errores Kafka | No considera recuperado el mensaje si falla el envío a la DLT. |
+| 10 | Administrador | Lista los tópicos devueltos por AdminClient. |
+| 11 | Administrador | Crea un tópico con particiones, réplicas y retención solicitadas. |
+| 12 | Administrador | Modifica la retención mediante una operación incremental. |
+| 13 | Administrador | Rechaza una retención inválida antes de contactar al broker. |
+| 14 | Administrador | Elimina únicamente el tópico solicitado. |
+| 15 | Administrador | Lista los grupos y representa correctamente su estado. |
 
 ## Ejecutar con Java 17 y Maven instalados
 
 Desde la raíz del proyecto:
-
-```sh
-mvn -B -ntp -f backend/inventory-service/pom.xml test
-mvn -B -ntp -f backend/analytics-service/pom.xml test
-mvn -B -ntp -f backend/kafka-admin-service/pom.xml test
-```
-
-Para ejecutar únicamente los 54 casos nuevos:
 
 ```sh
 mvn -B -ntp -f backend/inventory-service/pom.xml -Dtest=KafkaProductPublisherTests test
@@ -32,31 +44,17 @@ mvn -B -ntp -f backend/analytics-service/pom.xml -Dtest=ProductAnalyticsTests,Ka
 mvn -B -ntp -f backend/kafka-admin-service/pom.xml -Dtest=TopicControllerTests test
 ```
 
-## Qué se comprueba
-
-| Clase | Casos | Comportamiento verificado |
-| --- | ---: | --- |
-| `KafkaProductPublisherTests` | 8 | Publicación de los tres tipos de evento con `productId` como clave; errores de envío síncronos y asíncronos registrados con `eventId`; publicación después del commit; ausencia de envío al hacer rollback o sin transacción. |
-| `ProductAnalyticsTests` | 21 | Transformación evento-métrica; confirmación del envío; propagación de fallos del broker; rechazo de JSON mal formado, eventos incompletos y tipos desconocidos; persistencia de métricas válidas; deduplicación de entregas; propagación de fallos de base de datos; conteos y proyección vacía. |
-| `KafkaErrorConfigTests` | 2 | Dos intentos de reentrega antes de recuperar el registro; destino `.DLT` en la misma partición con clave, payload y cabeceras de origen; si falla la publicación DLT, el registro no se considera recuperado. |
-| `TopicControllerTests` | 23 | Listar, crear, describir, configurar y eliminar tópicos; aumentar particiones; validar solicitudes antes de llamar al broker; proteger tópicos internos; consultar grupos y offsets; traducir errores Kafka a HTTP 400/404/409/503. |
-| **Total nuevo** | **54** | Pruebas automatizadas sin infraestructura de mensajería externa. |
-
-En los tests de productores/consumidores y administrador, KafkaTemplate, AdminClient y repositorios son dobles de prueba. MockMvc standalone verifica validación de solicitudes y respuestas del controlador, sin la cadena de autenticación de producción. Las pruebas JWT existentes usan firmas RSA y un JWKS HTTP local para validar emisor, audiencia, vigencia y firma. La sincronización de commit/rollback utiliza un gestor de transacciones de prueba y las reglas reales de eventos transaccionales Spring.
-
-Estas pruebas no sustituyen las de integración con brokers reales, el login Entra ID, la persistencia tras reinicios ni la caída de brokers, realizadas por separado.
-
 ## Resultado registrado
-
-La ejecución de las suites completas de los tres módulos el 9 de noviembre de 2026 incluye los 54 casos nuevos y 23 existentes de regresión:
 
 | Módulo | Ejecutadas | Fallos | Errores | Omitidas |
 | --- | ---: | ---: | ---: | ---: |
-| Inventory Service | 13 | 0 | 0 | 0 |
-| Analytics Service | 32 | 0 | 0 | 0 |
-| Kafka Admin Service | 32 | 0 | 0 | 0 |
-| **Total** | **77** | **0** | **0** | **0** |
+| Inventory Service | 3 | 0 | 0 | 0 |
+| Analytics Service | 6 | 0 | 0 | 0 |
+| Kafka Admin Service | 6 | 0 | 0 | 0 |
+| **Total Kafka** | **15** | **0** | **0** | **0** |
 
-La ejecución registrada se realizó con Maven 3.9.11 y JDK 17, usando dependencias ya instaladas en modo offline. El Compose de pruebas invoca los mismos tres comandos Maven y se valida por separado como configuración; no se presenta como una ejecución Docker realizada en el equipo del usuario.
+La ejecución registrada el 9 de noviembre de 2026 utiliza JDK 17 y Maven 3.9.11 con las dependencias disponibles en modo offline. El Compose invoca los mismos comandos y se valida por separado como configuración; no se presenta como una ejecución realizada en el equipo del usuario.
 
-Para la entrega, guardar capturas de los resúmenes de los tres módulos y sus reportes Surefire. El porcentaje de cobertura de código no se ha medido; los conteos de casos no implican cobertura del 100 %.
+KafkaTemplate, AdminClient y repositorios son dobles Mockito. Se utiliza el serializador JSON real y la sincronización transaccional Spring con un gestor de transacciones de prueba. MockMvc standalone verifica las peticiones del administrador sin cargar la autenticación de producción. Las pruebas JWT existentes se conservan fuera de esta selección.
+
+Estas comprobaciones no sustituyen las pruebas de integración con Kafka/RabbitMQ reales, login Entra ID, persistencia o caída de brokers. No se declara cobertura de código del 100 %.
