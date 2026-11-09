@@ -200,3 +200,9 @@ docker compose -f docker-compose.tests.yml run --rm kafka-tests
 ```
 
 Casos cubiertos, ejecución con Maven y resultados: [docs/PRUEBAS_KAFKA.md](docs/PRUEBAS_KAFKA.md).
+
+La recuperación de conexiones del gateway tras reiniciar Analytics/Auditoría se explica en [docs/RECUPERACION_GATEWAY.md](docs/RECUPERACION_GATEWAY.md). Para ejecutar sus dos pruebas de componentes:
+
+```sh
+docker compose -f docker-compose.tests.yml run --rm gateway-tests
+```

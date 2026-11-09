@@ -14,5 +14,13 @@ services:
         mvn -B -ntp -f backend/inventory-service/pom.xml -Dtest=KafkaProductPublisherTests test
         mvn -B -ntp -f backend/analytics-service/pom.xml -Dtest=ProductAnalyticsTests,KafkaErrorConfigTests test
         mvn -B -ntp -f backend/kafka-admin-service/pom.xml -Dtest=TopicControllerTests test
+  gateway-tests:
+    image: maven:3.9-eclipse-temurin-17
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - kafka_test_maven_cache:/root/.m2
+    entrypoint: ["/bin/bash", "-lc"]
+    command: ["mvn -B -ntp -f backend/api-gateway/pom.xml test"]
 volumes:
   kafka_test_maven_cache:

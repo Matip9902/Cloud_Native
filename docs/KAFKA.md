@@ -135,3 +135,7 @@ Los productores, consumidores, DLT y el administrador disponen de 15 casos autom
 ```sh
 docker compose -f docker-compose.tests.yml run --rm kafka-tests
 ```
+
+## Recuperación tras reiniciar Analytics
+
+Los registros Eureka de los servicios nuevos usan nombres Docker estables y el gateway limita su caché DNS para resolver cambios de IP. La prueba automatizada, la actualización y el chequeo local están en [RECUPERACION_GATEWAY.md](RECUPERACION_GATEWAY.md).

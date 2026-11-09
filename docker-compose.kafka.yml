@@ -125,6 +125,9 @@ services:
   kafka-admin-service:
     build: ./backend/kafka-admin-service
     environment:
+      EUREKA_INSTANCE_HOSTNAME: kafka-admin-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_INSTANCE_ID: "kafka-admin-service:8087"
       KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
     depends_on:
@@ -150,6 +153,9 @@ services:
   analytics-service:
     build: ./backend/analytics-service
     environment:
+      EUREKA_INSTANCE_HOSTNAME: analytics-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_INSTANCE_ID: "analytics-service:8086"
       KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
       ANALYTICS_DB_URL: jdbc:h2:file:/app/data/analytics

@@ -146,6 +146,9 @@ services:
       rabbitmq-2:
         condition: service_healthy
     environment:
+      EUREKA_INSTANCE_HOSTNAME: audit-service
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_INSTANCE_ID: "audit-service:8088"
       AUDIT_DB_URL: jdbc:h2:file:/app/data/audit
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
       CORS_ALLOWED_ORIGINS: http://localhost:4200
