@@ -206,3 +206,7 @@ La recuperación de conexiones del gateway tras reiniciar Analytics/Auditoría s
 ```sh
 docker compose -f docker-compose.tests.yml run --rm gateway-tests
 ```
+
+## Pruebas unitarias Angular
+
+Seis casos del arranque y selección de cuenta MSAL, con autenticación simulada. Instrucciones y alcance: [docs/PRUEBAS_ANGULAR.md](docs/PRUEBAS_ANGULAR.md).
