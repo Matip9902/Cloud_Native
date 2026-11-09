@@ -36,7 +36,20 @@ public class SecurityConfig {
         var decoder=NimbusJwtDecoder.withJwkSetUri(jwks).build();
         OAuth2TokenValidator<Jwt> audience=jwt -> jwt.getAudience().stream().anyMatch(java.util.List.of(audiences.split(","))::contains)
             ? OAuth2TokenValidatorResult.success() : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token","Invalid audience",null));
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer),audience));
+        // Entra can issue v1 access tokens even when the client logs in via the v2 endpoint.
+        // Accept both issuer formats only for the configured tenant, as Inventory/Gateway do.
+        java.util.Set<String> allowedIssuers = new java.util.HashSet<>();
+        allowedIssuers.add(issuer);
+        var v2 = java.util.regex.Pattern.compile(
+                "https://login\\.microsoftonline\\.com/([0-9a-fA-F-]{36})/v2\\.0").matcher(issuer);
+        var v1 = java.util.regex.Pattern.compile(
+                "https://sts\\.windows\\.net/([0-9a-fA-F-]{36})/").matcher(issuer);
+        if (v2.matches()) allowedIssuers.add("https://sts.windows.net/" + v2.group(1) + "/");
+        if (v1.matches()) allowedIssuers.add("https://login.microsoftonline.com/" + v1.group(1) + "/v2.0");
+        OAuth2TokenValidator<Jwt> trustedIssuer = jwt -> allowedIssuers.contains(jwt.getClaimAsString("iss"))
+                ? OAuth2TokenValidatorResult.success()
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Invalid issuer", null));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefault(), trustedIssuer, audience));
         return decoder;
     }
 }

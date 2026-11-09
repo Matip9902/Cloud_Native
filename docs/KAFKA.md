@@ -112,3 +112,18 @@ docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d
 ```
 
 No utilizar `down -v`: no es necesario borrar datos para corregir el orden de arranque. Si ZooKeeper queda `unhealthy`, revisar sus logs; ese estado indica que sigue sin aceptar sesiones y necesita un diagnóstico adicional.
+
+## Si Métricas o Auditoría responden 401 pero Productos funciona
+
+El endpoint de login Entra v2 no garantiza que el token de acceso sea v2: la versión del token depende de la API registrada. Los servicios de analítica, auditoría y administración Kafka aceptan los emisores v1 (`https://sts.windows.net/<tenant>/`) y v2 (`https://login.microsoftonline.com/<tenant>/v2.0`) únicamente del tenant configurado en `JWT_ISSUER_URI`. Mantienen la verificación de firma con JWKS, vencimiento y audiencia. No es necesario cambiar los permisos del usuario ni desactivar seguridad.
+
+Actualizar y reconstruir los servicios que validan esos tokens:
+
+```sh
+git pull origin main
+docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d analytics-service audit-service kafka-admin-service
+```
+
+Después, actualizar las secciones Estadísticas Kafka y Auditoría en Angular. Si persiste el 401, revisar los logs del gateway y de esos servicios para localizar el rechazo; no compartir tokens ni claves privadas en los logs o en capturas.
+
+Pruebas de regresión: cada servicio comprueba con tokens RSA realmente firmados y un JWKS local la aceptación del tenant v1/v2 y el rechazo de emisores de otros tenants, emisor ausente, audiencia incorrecta, token vencido y firma falsa. Estas pruebas no usan credenciales Azure reales ni sustituyen la comprobación del login en el equipo del usuario.
