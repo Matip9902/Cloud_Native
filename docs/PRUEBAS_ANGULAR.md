@@ -28,3 +28,26 @@ Resultado esperado: `TOTAL: 6 SUCCESS`.
 Si Karma no encuentra Chrome, establece `CHROME_BIN` con la ruta del ejecutable del navegador. Estas pruebas verifican la lógica local de autenticación; el inicio de sesión real con Entra ID se comprueba por separado en el navegador.
 
 Validación del 9 de noviembre de 2026: seis pruebas correctas en Chromium Headless, sin fallos. Las 15 pruebas seleccionadas de Kafka siguen siendo una suite independiente.
+
+## Revisión de dependencias
+
+Se actualizaron Angular a 20.3.35 y CLI/build a 20.3.42, junto con las dependencias compatibles del archivo de bloqueo. La validación posterior obtuvo:
+
+- Seis pruebas correctas en Chromium Headless.
+- Compilación de producción correcta; permanece el aviso de tamaño inicial (653,50 kB frente al presupuesto de aviso de 500 kB).
+- `npm audit`: 16 avisos moderados, cero altos y cero críticos, frente a los 35 avisos originales.
+- `npm audit --omit=dev`: cero vulnerabilidades notificadas.
+
+Los avisos restantes proceden de `glob` y `minimatch` en la cadena de herramientas del Angular CLI. El informe propone migrar a Angular CLI 22; esa migración requiere revisar compatibilidad y queda pendiente. No se aplicó `--force` ni se forzaron dependencias transitivas fuera de los rangos de sus consumidores. El informe de npm es una comprobación de avisos conocidos, no una auditoría completa de seguridad de la aplicación.
+
+Para reproducir los resultados después de actualizar el repositorio:
+
+```bash
+npm ci
+npm audit
+npm audit --omit=dev
+npm test -- --watch=false --browsers=ChromeHeadless
+npm run build
+```
+
+`npm audit` termina con código distinto de cero mientras queden avisos. Los resultados pueden cambiar al publicarse nuevos avisos.
