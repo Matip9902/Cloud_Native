@@ -18,7 +18,7 @@ class ProductAnalyticsTests {
     @Mock MetricRepository repository;
     private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
     private ProductAnalytics analytics;
-    @BeforeEach void setup() { analytics = new ProductAnalytics(mapper, kafka, repository, "product.metrics"); }
+    @BeforeEach void setup() { analytics = new ProductAnalytics(mapper, new ProductAnalyticsService(kafka, repository, "product.metrics")); }
     private ProductEvent event(String type) {
         return new ProductEvent(UUID.randomUUID(), type, 7L, "Monitor", OffsetDateTime.now());
     }

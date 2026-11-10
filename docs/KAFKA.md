@@ -37,6 +37,8 @@ Para ejecutar los nuevos servicios mediante Maven en el host, iniciar primero Zo
 4. El grupo `metrics-projection-v1` consume esas métricas y las guarda en H2 persistente. `eventId` es la clave primaria: reprocesar un evento no incrementa de nuevo el conteo.
 5. Angular muestra los conteos en **Estadísticas Kafka**, mediante `GET /api/v1/metrics`, pasando por el gateway. La actualización es manual y el procesamiento asíncrono.
 
+Los métodos `@KafkaListener` de `ProductAnalytics` solo convierten el JSON a DTO y delegan en `ProductAnalyticsService`. El servicio valida los eventos, transforma y publica métricas, y persiste la proyección dentro de una transacción. Los errores de conversión, validación, publicación o persistencia se propagan al manejador de reintentos y DLT; no se ocultan en el listener. La llamada a la proyección cruza el bean Spring para aplicar `@Transactional` antes de que el listener termine.
+
 El DTO de producto contiene `eventId`, `eventType`, `productId`, `productName` y `occurredAt`. La métrica conserva esos datos salvo `productName`. Los tipos admitidos son `PRODUCT_CREATED`, `PRODUCT_UPDATED` y `PRODUCT_DELETED`. Se utiliza JSON sin cabeceras de nombres de clases Java para desacoplar los servicios.
 
 ## Tópicos y errores
