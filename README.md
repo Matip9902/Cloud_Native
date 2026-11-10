@@ -214,3 +214,5 @@ Seis casos del arranque y selección de cuenta MSAL, con autenticación simulada
 ## Evaluación 3: diseño y demostración
 
 [Relación con la rúbrica, contratos JSON y pruebas de consumer groups](docs/REVISION_RUBRICA_EA3.md).
+
+Si la construcción falla con **Maven Central HTTP 429**, consultar [reintento secuencial, caché y espejo opcional](docs/ERRORES_DESCARGA_MAVEN.md).
