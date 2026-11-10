@@ -1,0 +1,5 @@
+# Local demonstration: two event listeners, one JVM and one H2 projection writer.
+services:
+  analytics-service:
+    environment:
+      PRODUCT_EVENTS_CONCURRENCY: "2"

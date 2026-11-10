@@ -28,7 +28,7 @@ Los tres módulos deben terminar con `BUILD SUCCESS`, sin fallos, errores ni cas
 | 8 | Errores Kafka | Reintenta dos veces y envía el registro a la misma partición de la DLT con clave, payload y cabeceras de origen. |
 | 9 | Errores Kafka | No considera recuperado el mensaje si falla el envío a la DLT. |
 | 10 | Administrador | Lista los tópicos devueltos por AdminClient. |
-| 11 | Administrador | Crea un tópico con particiones, réplicas y retención solicitadas. |
+| 11 | Administrador | Crea un tópico con particiones, réplicas y retención solicitadas y solicita su aumento a seis particiones. |
 | 12 | Administrador | Modifica la retención mediante una operación incremental. |
 | 13 | Administrador | Rechaza una retención inválida antes de contactar al broker. |
 | 14 | Administrador | Elimina únicamente el tópico solicitado. |

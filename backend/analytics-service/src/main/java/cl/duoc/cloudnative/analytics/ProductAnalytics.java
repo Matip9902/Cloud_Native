@@ -14,7 +14,8 @@ public class ProductAnalytics {
         this.analytics = analytics;
     }
 
-    @KafkaListener(topics = "${app.kafka.product-topic}", groupId = "product-analytics-v1")
+    @KafkaListener(topics = "${app.kafka.product-topic}", groupId = "product-analytics-v1",
+            concurrency = "${app.kafka.product-concurrency:1}")
     public void process(String payload) throws Exception {
         analytics.process(mapper.readValue(payload, ProductEvent.class));
     }

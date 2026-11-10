@@ -41,7 +41,7 @@ class TopicControllerTests {
                 .andExpect(jsonPath("$", org.hamcrest.Matchers.containsInAnyOrder("product.events", "product.metrics")));
     }
     @Test @SuppressWarnings({"rawtypes", "unchecked"})
-    void createsTopicWithRequestedTopologyAndRetention() throws Exception {
+    void createsTopicAndIncreasesPartitionsWithoutChangingReplication() throws Exception {
         CreateTopicsResult result = mock(CreateTopicsResult.class);
         when(admin.createTopics(anyCollection())).thenReturn(result);
         when(result.all()).thenReturn(KafkaFuture.completedFuture(null));
@@ -54,6 +54,16 @@ class TopicControllerTests {
         assertThat(created.numPartitions()).isEqualTo(3);
         assertThat(created.replicationFactor()).isEqualTo((short) 3);
         assertThat(created.configs()).containsEntry("retention.ms", "86400000");
+        CreatePartitionsResult increased = mock(CreatePartitionsResult.class);
+        when(admin.createPartitions(anyMap())).thenReturn(increased);
+        when(increased.all()).thenReturn(KafkaFuture.completedFuture(null));
+        mvc.perform(patch(ROOT + "/topics/demo.unit/partitions").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"partitions\":6}")).andExpect(status().isNoContent());
+        ArgumentCaptor<Map<String, NewPartitions>> partitions = ArgumentCaptor.forClass(Map.class);
+        verify(admin).createPartitions(partitions.capture());
+        assertThat(partitions.getValue()).containsOnlyKeys("demo.unit");
+        assertThat(partitions.getValue().get("demo.unit").totalCount()).isEqualTo(6);
+
     }
     @Test @SuppressWarnings({"unchecked", "rawtypes"})
     void patchesConfigurationWithIncrementalSetOperation() throws Exception {

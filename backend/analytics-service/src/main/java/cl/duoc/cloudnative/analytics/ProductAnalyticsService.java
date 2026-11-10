@@ -1,12 +1,9 @@
 package cl.duoc.cloudnative.analytics;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /** Application logic shared by the Kafka adapters. Exceptions must reach the retry/DLT handler. */
 @Service
@@ -14,15 +11,12 @@ public class ProductAnalyticsService {
     private static final Set<String> EVENT_TYPES = Set.of(
             "PRODUCT_CREATED", "PRODUCT_UPDATED", "PRODUCT_DELETED");
 
-    private final KafkaTemplate<String, Object> kafka;
+    private final MetricPublisher publisher;
     private final MetricRepository repository;
-    private final String metricsTopic;
 
-    public ProductAnalyticsService(KafkaTemplate<String, Object> kafka, MetricRepository repository,
-            @Value("${app.kafka.metrics-topic}") String metricsTopic) {
-        this.kafka = kafka;
+    public ProductAnalyticsService(MetricPublisher publisher, MetricRepository repository) {
+        this.publisher = publisher;
         this.repository = repository;
-        this.metricsTopic = metricsTopic;
     }
 
     public void process(ProductEvent event) throws Exception {
@@ -31,8 +25,7 @@ public class ProductAnalyticsService {
             throw new IllegalArgumentException("Invalid product event");
         }
         // Return only after the broker acknowledges, before committing the input offset.
-        kafka.send(metricsTopic, event.productId().toString(), new ProductMetric(event))
-                .get(30, TimeUnit.SECONDS);
+        publisher.publish(new ProductMetric(event));
     }
 
     @Transactional

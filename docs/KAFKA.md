@@ -37,7 +37,7 @@ Para ejecutar los nuevos servicios mediante Maven en el host, iniciar primero Zo
 4. El grupo `metrics-projection-v1` consume esas métricas y las guarda en H2 persistente. `eventId` es la clave primaria: reprocesar un evento no incrementa de nuevo el conteo.
 5. Angular muestra los conteos en **Estadísticas Kafka**, mediante `GET /api/v1/metrics`, pasando por el gateway. La actualización es manual y el procesamiento asíncrono.
 
-Los métodos `@KafkaListener` de `ProductAnalytics` solo convierten el JSON a DTO y delegan en `ProductAnalyticsService`. El servicio valida los eventos, transforma y publica métricas, y persiste la proyección dentro de una transacción. Los errores de conversión, validación, publicación o persistencia se propagan al manejador de reintentos y DLT; no se ocultan en el listener. La llamada a la proyección cruza el bean Spring para aplicar `@Transactional` antes de que el listener termine.
+Los métodos `@KafkaListener` de `ProductAnalytics` solo convierten el JSON a DTO y delegan en `ProductAnalyticsService`. El servicio valida los eventos, transforma y delega la publicación mediante el puerto `MetricPublisher`; el adaptador `KafkaMetricPublisher` utiliza KafkaTemplate y espera la confirmación del broker. La proyección se persiste dentro de una transacción. Los errores de conversión, validación, publicación o persistencia se propagan al manejador de reintentos y DLT; no se ocultan en el listener. La llamada a la proyección cruza el bean Spring para aplicar `@Transactional` antes de que el listener termine.
 
 El DTO de producto contiene `eventId`, `eventType`, `productId`, `productName` y `occurredAt`. La métrica conserva esos datos salvo `productName`. Los tipos admitidos son `PRODUCT_CREATED`, `PRODUCT_UPDATED` y `PRODUCT_DELETED`. Se utiliza JSON sin cabeceras de nombres de clases Java para desacoplar los servicios.
 
@@ -141,3 +141,5 @@ docker compose -f docker-compose.tests.yml run --rm kafka-tests
 ## Recuperación tras reiniciar Analytics
 
 Los registros Eureka de los servicios nuevos usan nombres Docker estables y el gateway limita su caché DNS para resolver cambios de IP. La prueba automatizada, la actualización y el chequeo local están en [RECUPERACION_GATEWAY.md](RECUPERACION_GATEWAY.md).
+
+Justificación del diseño, relación con los nueve criterios y pruebas de rebalanceo/particiones: [REVISION_RUBRICA_EA3.md](REVISION_RUBRICA_EA3.md).

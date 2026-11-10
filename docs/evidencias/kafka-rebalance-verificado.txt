@@ -1,0 +1,21 @@
+Tópico temporal: rubrica-f2f7530e7ed8-topic Grupo temporal: rubrica-f2f7530e7ed8-group
+
+PASS: 1 miembro(s), particiones 0/1/2 asignadas una sola vez.
+
+GROUP                      CONSUMER-ID                                           HOST            CLIENT-ID        #PARTITIONS     ASSIGNMENT
+rubrica-f2f7530e7ed8-group console-consumer-2fd62e40-5982-4d6e-a042-ee68bc8bfa5c /172.20.0.6     console-consumer 3               rubrica-f2f7530e7ed8-topic(0,1,2)
+
+
+PASS: 2 miembro(s), particiones 0/1/2 asignadas una sola vez.
+
+GROUP                      CONSUMER-ID                                           HOST            CLIENT-ID        #PARTITIONS     ASSIGNMENT
+rubrica-f2f7530e7ed8-group console-consumer-789118d4-709e-4582-82ea-3e9e312cc8af /172.20.0.7     console-consumer 1               rubrica-f2f7530e7ed8-topic(2)
+rubrica-f2f7530e7ed8-group console-consumer-2fd62e40-5982-4d6e-a042-ee68bc8bfa5c /172.20.0.6     console-consumer 2               rubrica-f2f7530e7ed8-topic(0,1)
+
+
+PASS: 1 miembro(s), particiones 0/1/2 asignadas una sola vez.
+
+GROUP                      CONSUMER-ID                                           HOST            CLIENT-ID        #PARTITIONS     ASSIGNMENT
+rubrica-f2f7530e7ed8-group console-consumer-2fd62e40-5982-4d6e-a042-ee68bc8bfa5c /172.20.0.6     console-consumer 3               rubrica-f2f7530e7ed8-topic(0,1,2)
+
+PASS: reparto y reasignación con brokers reales. No se publicaron eventos de negocio.

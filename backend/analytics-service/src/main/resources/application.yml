@@ -42,5 +42,6 @@ spring:
     open-in-view: false
 app:
   kafka:
+    product-concurrency: ${PRODUCT_EVENTS_CONCURRENCY:1}
     product-topic: ${KAFKA_PRODUCT_TOPIC:product.events}
     metrics-topic: ${KAFKA_METRICS_TOPIC:product.metrics}

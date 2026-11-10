@@ -210,3 +210,7 @@ docker compose -f docker-compose.tests.yml run --rm gateway-tests
 ## Pruebas unitarias Angular
 
 Seis casos del arranque y selección de cuenta MSAL, con autenticación simulada. Instrucciones y alcance: [docs/PRUEBAS_ANGULAR.md](docs/PRUEBAS_ANGULAR.md).
+
+## Evaluación 3: diseño y demostración
+
+[Relación con la rúbrica, contratos JSON y pruebas de consumer groups](docs/REVISION_RUBRICA_EA3.md).
