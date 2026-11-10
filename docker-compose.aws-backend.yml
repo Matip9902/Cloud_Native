@@ -1,0 +1,113 @@
+# AWS backend overlay; Compose >= 2.24.4. Use after base + Kafka files.
+# RDS settings are mandatory; no silent fallback to a local database.
+x-rds-runtime: &rds-runtime
+  JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+  SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+  SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "1"
+  JPA_DDL_AUTO: update
+
+services:
+  frontend:
+    profiles: [frontend-local-only]
+  inventory-service:
+    environment:
+      <<: *rds-runtime
+      DB_URL: "jdbc:postgresql://${RDS_HOST:?Configure RDS_HOST}:5432/cloud_native?currentSchema=inventory&sslmode=verify-full&sslrootcert=/app/certs/global-bundle.pem"
+      DB_USERNAME: ${RDS_USERNAME:?Configure RDS_USERNAME}
+      DB_PASSWORD: ${RDS_PASSWORD:?Configure RDS_PASSWORD}
+      DB_DRIVER: org.postgresql.Driver
+    volumes:
+      - type: bind
+        source: ./infra/rds/global-bundle.pem
+        target: /app/certs/global-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    ports: !override
+      - "127.0.0.1:8080:8080"
+  customer-service:
+    environment:
+      <<: *rds-runtime
+      CUSTOMER_DB_URL: "jdbc:postgresql://${RDS_HOST:?Configure RDS_HOST}:5432/cloud_native?currentSchema=customers&sslmode=verify-full&sslrootcert=/app/certs/global-bundle.pem"
+      CUSTOMER_DB_USERNAME: ${RDS_USERNAME:?Configure RDS_USERNAME}
+      CUSTOMER_DB_PASSWORD: ${RDS_PASSWORD:?Configure RDS_PASSWORD}
+      CUSTOMER_DB_DRIVER: org.postgresql.Driver
+    volumes:
+      - type: bind
+        source: ./infra/rds/global-bundle.pem
+        target: /app/certs/global-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    ports: !override
+      - "127.0.0.1:8081:8081"
+  supplier-service:
+    environment:
+      <<: *rds-runtime
+      SUPPLIER_DB_URL: "jdbc:postgresql://${RDS_HOST:?Configure RDS_HOST}:5432/cloud_native?currentSchema=suppliers&sslmode=verify-full&sslrootcert=/app/certs/global-bundle.pem"
+      SUPPLIER_DB_USERNAME: ${RDS_USERNAME:?Configure RDS_USERNAME}
+      SUPPLIER_DB_PASSWORD: ${RDS_PASSWORD:?Configure RDS_PASSWORD}
+      SUPPLIER_DB_DRIVER: org.postgresql.Driver
+    volumes:
+      - type: bind
+        source: ./infra/rds/global-bundle.pem
+        target: /app/certs/global-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    ports: !override
+      - "127.0.0.1:8082:8082"
+  notification-service:
+    environment:
+      <<: *rds-runtime
+      NOTIFICATION_DB_URL: "jdbc:postgresql://${RDS_HOST:?Configure RDS_HOST}:5432/cloud_native?currentSchema=notifications&sslmode=verify-full&sslrootcert=/app/certs/global-bundle.pem"
+      NOTIFICATION_DB_USERNAME: ${RDS_USERNAME:?Configure RDS_USERNAME}
+      NOTIFICATION_DB_PASSWORD: ${RDS_PASSWORD:?Configure RDS_PASSWORD}
+      NOTIFICATION_DB_DRIVER: org.postgresql.Driver
+    volumes:
+      - type: bind
+        source: ./infra/rds/global-bundle.pem
+        target: /app/certs/global-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    ports: !override
+      - "127.0.0.1:8083:8083"
+  audit-service:
+    environment:
+      <<: *rds-runtime
+      AUDIT_DB_URL: "jdbc:postgresql://${RDS_HOST:?Configure RDS_HOST}:5432/cloud_native?currentSchema=audit&sslmode=verify-full&sslrootcert=/app/certs/global-bundle.pem"
+      AUDIT_DB_USERNAME: ${RDS_USERNAME:?Configure RDS_USERNAME}
+      AUDIT_DB_PASSWORD: ${RDS_PASSWORD:?Configure RDS_PASSWORD}
+      AUDIT_DB_DRIVER: org.postgresql.Driver
+    volumes:
+      - type: bind
+        source: ./infra/rds/global-bundle.pem
+        target: /app/certs/global-bundle.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    ports: !override
+      - "127.0.0.1:8088:8088"
+  rabbitmq:
+    ports: !override ["127.0.0.1:5672:5672", "127.0.0.1:15672:15672"]
+  rabbitmq-2:
+    ports: !override ["127.0.0.1:5673:5672", "127.0.0.1:15673:15672"]
+  eureka-server:
+    ports: !override ["127.0.0.1:8761:8761"]
+  rabbit-admin-service:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+    ports: !override ["127.0.0.1:8084:8084"]
+  api-gateway:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+    ports: !override
+      - "${BACKEND_PRIVATE_IP:-127.0.0.1}:8085:8085"
+  analytics-service:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
+  kafka-admin-service:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms64m -Xmx256m"
