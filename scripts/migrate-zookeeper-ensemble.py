@@ -95,12 +95,7 @@ try:
         for m in json.loads(inspect(container(s), '{{json .Mounts}}')):
             if m['Type'] == 'volume' and m['Name'] not in [n for n, _ in mounts]:
                 mounts.append((m['Name'], s))
-    # Freeze writers first so offsets stop advancing before the baseline is captured.
-    apps = [s for s in running if s not in ['kafka-1', 'kafka-2', 'kafka-3', 'zookeeper']]
-    if apps:
-        compose('stop', '-t', '60', *apps)
-    stopped = True
-    (backup / 'groups-before.txt').write_text(run(['docker', 'exec', brokers[0], 'kafka-consumer-groups', '--bootstrap-server', 'kafka-1:9092', '--all-groups', '--describe']))
+    # Measure volumes while their owning containers are still running.
     sizes = 0
     for service in running:
         for m in json.loads(inspect(container(service), '{{json .Mounts}}')):
@@ -108,6 +103,12 @@ try:
                 sizes += int(run(['docker', 'exec', container(service), 'du', '-sk', m['Destination']]).split()[0]) * 1024
     if shutil.disk_usage(backup).free < sizes + 512 * 1024 * 1024:
         raise RuntimeError('Not enough free space for volume backups plus 512 MiB reserve.')
+    # Freeze writers first so offsets stop advancing before the baseline is captured.
+    apps = [s for s in running if s not in ['kafka-1', 'kafka-2', 'kafka-3', 'zookeeper']]
+    if apps:
+        compose('stop', '-t', '60', *apps)
+    stopped = True
+    (backup / 'groups-before.txt').write_text(run(['docker', 'exec', brokers[0], 'kafka-consumer-groups', '--bootstrap-server', 'kafka-1:9092', '--all-groups', '--describe']))
     print('Backup:', backup, flush=True)
     compose('stop', '-t', '60', *[s for s in running if s not in apps])
     command = ['docker', 'run', '--rm', '--user', '0']
