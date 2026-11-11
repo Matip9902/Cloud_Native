@@ -14,13 +14,13 @@ export class ApiService {
 
   getAudits(): Observable<{ content: AuditRecord[] }> {
     return this.withAuthHeaders((headers) =>
-      this.http.get<{ content: AuditRecord[] }>('/api/v1/audits', { headers }),
+      this.http.get<{ content: AuditRecord[] }>(environment.api.audits, { headers }),
     );
   }
 
   getMetrics(): Observable<{ total: number; operations: Record<string, number> }> {
     return this.withAuthHeaders((headers) =>
-      this.http.get<{ total: number; operations: Record<string, number> }>('/api/v1/metrics', { headers }),
+      this.http.get<{ total: number; operations: Record<string, number> }>(environment.api.metrics, { headers }),
     );
   }
 

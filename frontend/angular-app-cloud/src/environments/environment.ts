@@ -10,6 +10,8 @@ export const environment = {
     ],
   },
   api: {
+    audits: '/api/v1/audits',
+    metrics: '/api/v1/metrics',
     inventory: '/api/v1/products',
     customers: '/api/v1/customers',
     suppliers: '/api/v1/suppliers',

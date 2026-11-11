@@ -1,3 +1,5 @@
+const apiBaseUrl = 'https://xwgnimeoa5.execute-api.us-east-1.amazonaws.com';
+
 export const environment = {
   production: true,
   azure: {
@@ -10,9 +12,11 @@ export const environment = {
     ],
   },
   api: {
-    inventory: '/api/v1/products',
-    customers: '/api/v1/customers',
-    suppliers: '/api/v1/suppliers',
-    notifications: '/api/v1/notifications',
+    audits: `${apiBaseUrl}/api/v1/audits`,
+    metrics: `${apiBaseUrl}/api/v1/metrics`,
+    inventory: `${apiBaseUrl}/api/v1/products`,
+    customers: `${apiBaseUrl}/api/v1/customers`,
+    suppliers: `${apiBaseUrl}/api/v1/suppliers`,
+    notifications: `${apiBaseUrl}/api/v1/notifications`,
   },
 };
