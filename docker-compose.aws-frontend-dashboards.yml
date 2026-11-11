@@ -1,0 +1,12 @@
+# Frontend: use together with docker-compose.aws-frontend.yml.
+services:
+  caddy:
+    environment:
+      KAFKA_UI_DOMAIN: ${KAFKA_UI_DOMAIN:?Run scripts/configure-dashboards.py}
+      RABBIT_UI_DOMAIN: ${RABBIT_UI_DOMAIN:?Run scripts/configure-dashboards.py}
+      KAFKA_UI_UPSTREAM: ${KAFKA_UI_UPSTREAM:?Run scripts/configure-dashboards.py}
+      RABBIT_UI_UPSTREAM: ${RABBIT_UI_UPSTREAM:?Run scripts/configure-dashboards.py}
+      KAFKA_UI_USERNAME: ${KAFKA_UI_USERNAME:?Run scripts/configure-dashboards.py}
+      KAFKA_UI_PASSWORD_HASH: ${KAFKA_UI_PASSWORD_HASH:?Run scripts/configure-dashboards.py}
+    volumes:
+      - ./infra/frontend/Caddyfile.dashboards:/etc/caddy/Caddyfile:ro

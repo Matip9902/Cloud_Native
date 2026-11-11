@@ -1,0 +1,13 @@
+# Backend: append after base, Kafka and AWS backend overlays.
+# Allow these host ports only from the frontend security group.
+services:
+  kafka-ui:
+    ports: !override
+      - "${BACKEND_PRIVATE_IP:?Configure BACKEND_PRIVATE_IP}:8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: cloud-native-aws
+  rabbitmq:
+    ports: !override
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+      - "${BACKEND_PRIVATE_IP:?Configure BACKEND_PRIVATE_IP}:15672:15672"

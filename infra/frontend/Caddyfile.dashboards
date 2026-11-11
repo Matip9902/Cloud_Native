@@ -1,0 +1,21 @@
+{$FRONTEND_DOMAIN} {
+	handle /api/* {
+		reverse_proxy {$BACKEND_UPSTREAM}
+	}
+	handle {
+		reverse_proxy frontend:80
+	}
+}
+
+{$KAFKA_UI_DOMAIN} {
+	basic_auth {
+		{$KAFKA_UI_USERNAME} {$KAFKA_UI_PASSWORD_HASH}
+	}
+	reverse_proxy {$KAFKA_UI_UPSTREAM} {
+		header_up -Authorization
+	}
+}
+
+{$RABBIT_UI_DOMAIN} {
+	reverse_proxy {$RABBIT_UI_UPSTREAM}
+}
