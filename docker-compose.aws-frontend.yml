@@ -1,0 +1,37 @@
+# Standalone: do not combine with the backend Compose files.
+services:
+  frontend:
+    build:
+      context: ./frontend/angular-app-cloud
+      args:
+        ANGULAR_CONFIGURATION: production
+    restart: unless-stopped
+    volumes:
+      - ./infra/frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - frontend
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:?Set FRONTEND_DOMAIN to the public DNS hostname}
+      BACKEND_UPSTREAM: ${BACKEND_UPSTREAM:?Set BACKEND_UPSTREAM to the private backend IP and port}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/frontend/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      - frontend
+
+networks:
+  frontend:
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,9 @@
+{$FRONTEND_DOMAIN} {
+	handle /api/* {
+		reverse_proxy {$BACKEND_UPSTREAM}
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}
