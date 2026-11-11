@@ -1,3 +1,7 @@
+{
+	default_sni 3.228.191.162
+}
+
 {$FRONTEND_DOMAIN} {
 	handle /api/* {
 		reverse_proxy {$BACKEND_UPSTREAM}
@@ -18,4 +22,37 @@
 
 {$RABBIT_UI_DOMAIN} {
 	reverse_proxy {$RABBIT_UI_UPSTREAM}
+}
+
+https://3.228.191.162 {
+	redir /kafka /kafka/ 308
+	redir /rabbit /rabbit/ 308
+
+	handle /kafka/* {
+		basic_auth {
+			{$KAFKA_UI_USERNAME} {$KAFKA_UI_PASSWORD_HASH}
+		}
+		reverse_proxy {$KAFKA_UI_UPSTREAM} {
+			header_up -Authorization
+		}
+	}
+
+	handle /rabbit/* {
+		reverse_proxy {$RABBIT_UI_UPSTREAM}
+	}
+
+	tls {
+		issuer acme {
+			dir https://acme-v02.api.letsencrypt.org/directory
+			profile shortlived
+		}
+	}
+
+	handle /api/* {
+		reverse_proxy {$BACKEND_UPSTREAM}
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
 }

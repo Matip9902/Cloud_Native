@@ -1,3 +1,5 @@
+> Actualización: los accesos principales son https://3.228.191.162, https://3.228.191.162/kafka/ y https://3.228.191.162/rabbit/. Consultar [PANELES_AWS.md](PANELES_AWS.md) para la configuración vigente. Los ejemplos anteriores con sslip.io se conservan como referencia.
+
 # Backend EC2 con RDS y frontend en otra EC2
 
 Esta variante mantiene Eureka, gateway y todos los microservicios en la EC2 backend. El frontend se despliega por separado. No combinar con los archivos antiguos `entry/services`.

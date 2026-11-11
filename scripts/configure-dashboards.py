@@ -49,8 +49,8 @@ def main():
     path.chmod(0o600)
     path.write_text('\n'.join(lines) + '\n')
     print('Configuracion guardada; la contrasena Kafka no se guardo en texto plano.')
-    print('Kafka: https://' + updates['KAFKA_UI_DOMAIN'])
-    print('RabbitMQ: https://' + updates['RABBIT_UI_DOMAIN'])
+    print('Kafka: https://3.228.191.162/kafka/')
+    print('RabbitMQ: https://3.228.191.162/rabbit/')
     print('RabbitMQ utiliza su usuario y contrasena existentes del backend.')
 
 

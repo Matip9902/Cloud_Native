@@ -1,3 +1,5 @@
+> Actualización: los accesos principales son https://3.228.191.162, https://3.228.191.162/kafka/ y https://3.228.191.162/rabbit/. Consultar [PANELES_AWS.md](PANELES_AWS.md) para la configuración vigente. Los ejemplos anteriores con sslip.io se conservan como referencia.
+
 # Integración Amazon API Gateway HTTP API
 
 Producción Angular usa `https://xwgnimeoa5.execute-api.us-east-1.amazonaws.com`

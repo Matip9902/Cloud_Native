@@ -1,72 +1,72 @@
-# Paneles publicos para la presentacion
+# Accesos HTTPS del proyecto en AWS
 
-Enlaces tras completar la configuracion:
+## Enlaces principales
 
-- Kafka UI: https://kafka.3.228.191.162.sslip.io (usuario/password nuevos).
-- RabbitMQ: https://rabbit.3.228.191.162.sslip.io (login propio de RabbitMQ).
+- Aplicación: https://3.228.191.162
+- Kafka UI: https://3.228.191.162/kafka/
+- RabbitMQ: https://3.228.191.162/rabbit/
 
-Caddy en el frontend emite certificados HTTPS para ambos nombres y usa la red
-privada para conectar con los paneles del backend. Kafka UI exige Basic Auth
-sobre HTTPS; la clave se guarda solo como hash bcrypt en el .env del frontend.
-RabbitMQ mantiene su autenticacion nativa y sus credenciales del backend.
-No se abren a Internet los puertos de Kafka, AMQP, Zookeeper ni los paneles HTTP.
+Estos accesos se comprobaron desde la red de Duoc, con HTTPS,
+sin túnel SSH y sin visitar sslip.io desde el navegador.
+
+## Configuración
+
+La IP elástica 3.228.191.162 está asociada al frontend.
+Caddy usa default_sni y un certificado público ACME para la IP,
+con el perfil shortlived de Let's Encrypt.
+
+Caddy gestiona la renovación automática. Conservar sus volúmenes
+y permitir las validaciones por los puertos 80/443.
+La renovación futura no ha sido comprobada todavía.
+
+Kafka UI utiliza SERVER_SERVLET_CONTEXT_PATH=/kafka y está protegido
+por Basic Auth en Caddy. RabbitMQ usa management.path_prefix=/rabbit
+y su autenticación propia.
+
+Las contraseñas y sus hashes permanecen en los archivos .env de las
+EC2. No subir .env, certificados privados ni contraseñas a GitHub.
 
 ## Backend
 
-En el Security Group del backend, agregar TCP 8090 y TCP 15672 con origen
-**grupo de seguridad del frontend** sg-0f0b63419bdf78f70. No usar 0.0.0.0/0.
+Utilizar conjuntamente estos cuatro archivos:
 
-En la EC2 backend 172.31.39.224:
-
-```bash
-cd ~/Cloud_Native
-git pull origin main
 docker compose -p cloud-native-aws \
-  -f docker-compose.yml -f docker-compose.kafka.yml \
-  -f docker-compose.aws-backend.yml -f docker-compose.aws-dashboards.yml \
-  up -d --no-deps kafka-ui rabbitmq
-```
+  -f docker-compose.yml \
+  -f docker-compose.kafka.yml \
+  -f docker-compose.aws-backend.yml \
+  -f docker-compose.aws-dashboards.yml \
+  up -d --no-build
 
-Esto recrea el primer nodo RabbitMQ para modificar los puertos publicados. Sus
-volumenes se conservan; puede interrumpir brevemente las conexiones y despues
-los clientes deben reconectar. No ejecutar down -v. Confirmar cluster_status
-y que la app vuelve a entregar notificaciones despues del cambio.
-
-En posteriores comandos Compose del backend, incluir tambien el overlay de
-paneles; omitirlo al recrear esos servicios vuelve a dejarlos solo en loopback.
+El Security Group del backend permite 8085, 8090 y 15672 solamente
+desde el grupo del frontend. Los puertos de los brokers no se
+publican para acceso directo desde Internet.
 
 ## Frontend
 
-```bash
-cd ~/Cloud_Native
-git pull origin main
-python3 scripts/configure-dashboards.py
+Utilizar conjuntamente los archivos:
+
 docker compose -p cloud-native-frontend \
-  -f docker-compose.aws-frontend.yml -f docker-compose.aws-frontend-dashboards.yml \
-  up -d --no-deps caddy
-```
+  -f docker-compose.aws-frontend.yml \
+  -f docker-compose.aws-frontend-dashboards.yml \
+  up -d --no-build
 
-Guardar la nueva clave Kafka en el gestor de contrasenas, no en Git ni en el
-chat. El asistente conserva las variables existentes del .env. No copiar el
-.env del backend al frontend. En futuros comandos que recreen Caddy, incluir
-ambos archivos. Los volumenes existentes de certificados se conservan.
+No ejecutar configure-dashboards.py para cada arranque: sirve para
+configurar o cambiar las credenciales de Kafka UI.
 
-## Verificacion
+## Entra, CORS y API Gateway
 
-Desde el frontend comprobar la red privada:
+La SPA registra https://3.228.191.162 como URI de redirección.
+Amazon API Gateway permite ese origen en CORS, junto con los
+métodos y las cabeceras Authorization y Content-Type.
 
-```bash
-curl -I --max-time 10 http://172.31.39.224:8090/
-curl -I --max-time 10 http://172.31.39.224:15672/
-```
+El .env del backend configura CORS_ALLOWED_ORIGINS incluyendo
+https://3.228.191.162. Cambiar variables requiere recrear los
+contenedores afectados; un simple restart no las actualiza.
 
-Consultar logs Caddy con ambos archivos Compose si no se emiten certificados.
-Kafka publico sin credenciales debe responder 401; con credenciales debe abrir
-el panel. RabbitMQ debe mostrar su formulario de login por HTTPS. Verificar en
-Kafka UI tres brokers, topicos y consumer groups; en RabbitMQ ambos nodos sin
-particiones de red, colas y consumidores. Un 502 indica conectividad privada o
-panel aun arrancando. Mantener las claves confidenciales al hacer capturas.
+Angular sigue llamando a Amazon API Gateway. Su integración HTTP
+actual conserva https://3.228.191.162.sslip.io/api/{proxy} entre
+servidores. Los bloques sslip.io de Caddy se conservan por ese motivo;
+el navegador de Duoc utiliza únicamente la IP para entrar a la web.
 
-Esta configuracion permite administracion real, no solo lectura. Compartir las
-credenciales unicamente con quienes deban administrar el proyecto. Las URLs
-dependen del DNS sslip.io y de conservar la Elastic IP y los recursos AWS.
+Los recursos AWS deben estar encendidos. Los servicios Spring pueden
+tardar varios minutos en responder UP después del arranque.

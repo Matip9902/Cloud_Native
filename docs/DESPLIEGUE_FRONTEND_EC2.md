@@ -1,3 +1,5 @@
+> Actualización: los accesos principales son https://3.228.191.162, https://3.228.191.162/kafka/ y https://3.228.191.162/rabbit/. Consultar [PANELES_AWS.md](PANELES_AWS.md) para la configuración vigente. Los ejemplos anteriores con sslip.io se conservan como referencia.
+
 # Frontend en una EC2 separada
 
 Este despliegue independiente sirve Angular con Nginx detrás de Caddy. Caddy

@@ -6,7 +6,10 @@ services:
       - "${BACKEND_PRIVATE_IP:?Configure BACKEND_PRIVATE_IP}:8090:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: cloud-native-aws
+      SERVER_SERVLET_CONTEXT_PATH: /kafka
   rabbitmq:
+    volumes:
+      - ./infra/rabbitmq/90-ui-prefix.conf:/etc/rabbitmq/conf.d/90-ui-prefix.conf:ro
     ports: !override
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"

@@ -23,3 +23,6 @@ infra/terraform/Cloud_Native/
 # RabbitMQ recovery backups may contain broker credentials and messages.
 respaldo-rabbitmq*/
 backup-rabbitmq*/
+
+# Copias locales de configuracion
+*.before-*
