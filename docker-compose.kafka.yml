@@ -3,11 +3,57 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.1
     environment:
+      ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 10
+      ZOOKEEPER_SYNC_LIMIT: 5
+      ZOOKEEPER_SERVERS: zookeeper:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 0
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx256m
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 5"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:7.7.1
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 10
+      ZOOKEEPER_SYNC_LIMIT: 5
+      ZOOKEEPER_SERVERS: zookeeper:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 0
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx256m
+    volumes:
+      - zookeeper_2_data:/var/lib/zookeeper/data
+      - zookeeper_2_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 5"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:7.7.1
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 10
+      ZOOKEEPER_SYNC_LIMIT: 5
+      ZOOKEEPER_SERVERS: zookeeper:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 0
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx256m
+    volumes:
+      - zookeeper_3_data:/var/lib/zookeeper/data
+      - zookeeper_3_log:/var/lib/zookeeper/log
     healthcheck:
       test: ["CMD-SHELL", "cub zk-ready localhost:2181 5"]
       interval: 10s
@@ -19,11 +65,15 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - "127.0.0.1:19092:19092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,EXTERNAL://localhost:19092
@@ -50,11 +100,15 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - "127.0.0.1:29092:29092"
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9092,EXTERNAL://localhost:29092
@@ -81,11 +135,15 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+      zookeeper-2:
+        condition: service_healthy
+      zookeeper-3:
+        condition: service_healthy
     ports:
       - "127.0.0.1:39092:39092"
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181,zookeeper-2:2181,zookeeper-3:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:39092
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:9092,EXTERNAL://localhost:39092
@@ -121,7 +179,7 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: cloud-native-local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181,zookeeper-2:2181,zookeeper-3:2181
   kafka-admin-service:
     build: ./backend/kafka-admin-service
     environment:
@@ -175,6 +233,10 @@ services:
 volumes:
   zookeeper_data:
   zookeeper_log:
+  zookeeper_2_data:
+  zookeeper_2_log:
+  zookeeper_3_data:
+  zookeeper_3_log:
   kafka_1_data:
   kafka_2_data:
   kafka_3_data:

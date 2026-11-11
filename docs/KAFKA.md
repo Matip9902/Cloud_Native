@@ -2,6 +2,12 @@
 
 Kafka complementa RabbitMQ. RabbitMQ entrega notificaciones a `notification-service` y auditoría a `audit-service`, cada uno con su cola y DLQ. La analítica pertenece a Kafka; ya no hay consumidor de métricas RabbitMQ. Kafka añade un historial de operaciones y una proyección persistente de conteos consultable desde Angular.
 
+## ZooKeeper: tres nodos
+
+Se usan tres votantes con IDs 1, 2 y 3, quórum de dos y almacenamiento independiente. Kafka y Kafka UI conocen los tres endpoints. La instalación previa con un único ZooKeeper requiere una [migración con respaldo](ZOOKEEPER_ENSEMBLE.md); no borrar ni sustituir sus volúmenes.
+
+El ensemble tolera la pérdida de un proceso/contenedor ZooKeeper mientras dos miembros puedan comunicarse. Los tres miembros y brokers en una sola EC2 no toleran la caída completa de esa EC2.
+
 ## Arranque local
 
 Desde la raíz del repositorio:
@@ -27,7 +33,7 @@ Se requiere Docker Compose v2. RabbitMQ utiliza descubrimiento declarativo de no
 
 Los nuevos puertos se publican solo en loopback. Kafka UI y los brokers usan acceso local sin autenticación; esta configuración es de desarrollo. No exponerlos directamente en Internet.
 
-Para ejecutar los nuevos servicios mediante Maven en el host, iniciar primero ZooKeeper y los tres brokers con el mismo comando Compose, seleccionando `zookeeper kafka-1 kafka-2 kafka-3`. Iniciar después `kafka-admin-service` (crea los tópicos), `analytics-service` y los servicios existentes desde sus directorios con `mvn spring-boot:run`. Los valores predeterminados de bootstrap apuntan a los puertos del host; Compose utiliza los listeners internos `kafka-N:9092`.
+Para ejecutar los nuevos servicios mediante Maven en el host, iniciar primero ZooKeeper y los tres brokers con el mismo comando Compose, seleccionando `zookeeper zookeeper-2 zookeeper-3 kafka-1 kafka-2 kafka-3`. Iniciar después `kafka-admin-service` (crea los tópicos), `analytics-service` y los servicios existentes desde sus directorios con `mvn spring-boot:run`. Los valores predeterminados de bootstrap apuntan a los puertos del host; Compose utiliza los listeners internos `kafka-N:9092`.
 
 ## Flujo
 

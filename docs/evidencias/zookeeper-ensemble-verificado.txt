@@ -1,0 +1,28 @@
+Validación aislada — 11 de noviembre de 2026
+Imágenes: confluentinc/cp-zookeeper:7.7.1 y confluentinc/cp-kafka:7.7.1.
+Proyecto Docker: zk-migration-check. No corresponde a las EC2 del estudiante.
+
+1. Se inició el Compose anterior con un ZooKeeper standalone y tres brokers.
+2. Se creó migration-proof con tres particiones y tres réplicas; se publicaron
+   tres registros y se consumieron con migration-proof-group.
+3. El script de migración respaldó los volúmenes con los procesos detenidos,
+   arrancó el nodo original junto con el miembro 2 y luego el miembro 3.
+4. PASS: tres ZooKeeper y tres brokers saludables; cluster ID conservado.
+5. PASS: identidad/cantidad de tópicos y offsets confirmados conservados.
+   migration-proof-group: particiones 0/1/2 con offsets 0/0/3, sin cambios.
+6. Roles iniciales: zookeeper=leader; zookeeper-2=follower; zookeeper-3=follower.
+7. Se leyeron los tres registros originales después de migrar.
+8. Se detuvo únicamente el líder ZooKeeper de este entorno aislado.
+   PASS: los dos miembros restantes eligieron un líder y un seguidor.
+9. Se publicó after-zookeeper-leader-loss con acks=all y se leyeron cuatro
+   mensajes: los tres originales y el nuevo. La escritura continuó con 2/3 nodos.
+10. Se reincorporó el nodo original y se verificaron los roles:
+    zookeeper=follower; zookeeper-2=follower; zookeeper-3=leader.
+    PASS: tres nodos, un líder y dos seguidores.
+
+También validaron docker compose config --quiet para la combinación local y
+la combinación AWS de cuatro archivos (con valores ficticios solo para expandir
+las variables obligatorias). No se modificaron bases RDS ni servicios AWS.
+La persistencia completa de las bases de negocio se verificará en la EC2 tras
+la aplicación; no se infiere de esta prueba de Kafka. Los pasos no verifican
+alta disponibilidad entre EC2, porque los nodos comparten una máquina.

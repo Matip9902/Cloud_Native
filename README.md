@@ -189,7 +189,7 @@ Kafka complementa RabbitMQ con dos tópicos (`product.events` y `product.metrics
 docker compose -f docker-compose.yml -f docker-compose.kafka.yml up --build -d
 ```
 
-Incluye ZooKeeper, tres brokers y Kafka UI (puerto 8090). Instrucciones, endpoints, configuración y pruebas manuales: [docs/KAFKA.md](docs/KAFKA.md).
+Incluye tres nodos ZooKeeper, tres brokers y Kafka UI (puerto 8090). Instrucciones, endpoints, configuración y pruebas manuales: [docs/KAFKA.md](docs/KAFKA.md).
 
 ## Pruebas automatizadas Kafka
 
@@ -216,3 +216,5 @@ Seis casos del arranque y selección de cuenta MSAL, con autenticación simulada
 [Relación con la rúbrica, contratos JSON y pruebas de consumer groups](docs/REVISION_RUBRICA_EA3.md).
 
 Si la construcción falla con **Maven Central HTTP 429**, consultar [reintento secuencial, caché y espejo opcional](docs/ERRORES_DESCARGA_MAVEN.md).
+
+Para migrar un despliegue existente con un solo ZooKeeper conservando los datos, seguir [la migración al ensemble de tres nodos](docs/ZOOKEEPER_ENSEMBLE.md). No aplicar el nuevo Compose a ciegas sobre el despliegue anterior.
